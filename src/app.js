@@ -35,14 +35,6 @@ app.use(express.urlencoded({ extended: true }));
 // API routes
 app.use('/api', routes);
 
-// Root endpoint
-app.get('/', (req, res) => {
-  res.json({
-    message: 'Welcome to Asset Tracker API',
-    version: '1.0.0',
-  });
-});
-
 // Error handling middleware
 app.use(notFound);
 app.use(errorHandler);
