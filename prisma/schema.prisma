@@ -1,0 +1,134 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  admin
+  employee
+}
+
+enum AssetCondition {
+  new
+  good
+  fair
+  damaged
+}
+
+enum AssetStatus {
+  available
+  assigned
+  acknowledged
+  pending_review
+  under_repair
+}
+
+enum TicketStatus {
+  open
+  under_review
+  resolved
+}
+
+enum EventType {
+  registered
+  assigned
+  acknowledged
+  returned
+  ticket_opened
+  repair_started
+  repair_completed
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         UserRole @default(employee)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  assignmentsAsEmployee Assignment[]    @relation("EmployeeAssignments")
+  assignmentsAsAdmin    Assignment[]    @relation("AdminAssignments")
+  reportedTickets       SupportTicket[] @relation("ReportedTickets")
+  reviewedTickets       SupportTicket[] @relation("ReviewedTickets")
+  triggeredEvents       AssetEvent[]
+
+  @@map("users")
+}
+
+model Asset {
+  id           String         @id @default(uuid())
+  name         String
+  assetType    String         @map("asset_type")
+  serialNumber String         @unique @map("serial_number")
+  condition    AssetCondition
+  status       AssetStatus    @default(available)
+  notes        String?
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+
+  assignments Assignment[]
+  events      AssetEvent[]
+
+  @@map("assets")
+}
+
+model Assignment {
+  id             String      @id @default(uuid())
+  assetId        String      @map("asset_id")
+  employeeId     String      @map("employee_id")
+  assignedBy     String      @map("assigned_by")
+  assignedAt     DateTime    @default(now()) @map("assigned_at")
+  acknowledgedAt DateTime?   @map("acknowledged_at")
+  returnedAt     DateTime?   @map("returned_at")
+  isActive       Boolean     @default(true) @map("is_active")
+  currentStatus  AssetStatus @default(assigned) @map("current_status")
+
+  asset           Asset           @relation(fields: [assetId], references: [id])
+  employee        User            @relation("EmployeeAssignments", fields: [employeeId], references: [id])
+  assignedByAdmin User            @relation("AdminAssignments", fields: [assignedBy], references: [id])
+  supportTickets  SupportTicket[]
+
+  @@map("assignments")
+}
+
+model SupportTicket {
+  id           String       @id @default(uuid())
+  assignmentId String       @map("assignment_id")
+  reportedBy   String       @map("reported_by")
+  reviewedBy   String?      @map("reviewed_by")
+  description  String
+  status       TicketStatus @default(open)
+  adminNotes   String?      @map("admin_notes")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  assignment Assignment @relation(fields: [assignmentId], references: [id])
+  reporter   User       @relation("ReportedTickets", fields: [reportedBy], references: [id])
+  reviewer   User?      @relation("ReviewedTickets", fields: [reviewedBy], references: [id])
+
+  @@map("support_tickets")
+}
+
+model AssetEvent {
+  id          String    @id @default(uuid())
+  assetId     String    @map("asset_id")
+  triggeredBy String    @map("triggered_by")
+  eventType   EventType @map("event_type")
+  notes       String?
+  metadata    Json?
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  asset   Asset @relation(fields: [assetId], references: [id])
+  trigger User  @relation(fields: [triggeredBy], references: [id])
+
+  @@map("asset_events")
+}
