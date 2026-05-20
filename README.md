@@ -2,8 +2,6 @@
 
 Express.js REST API for **AssetTrack**, an internal asset management system. Handles authentication, inventory, employee assignments, support tickets, audit events, and admin dashboard summaries.
 
-Pairs with the React frontend in `../client/`.
-
 ## Tech Stack
 
 | Layer | Technology |
