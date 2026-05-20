@@ -60,32 +60,6 @@ asset_tracker/
 └── package.json
 ```
 
-## Environment Variables
-
-Create `.env` in `asset_tracker/` (and optionally `.env.development` when `NODE_ENV=development` overlays it).
-
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `DATABASE_URL` | Yes | PostgreSQL connection string for Prisma |
-| `JWT_SECRET` | Yes | Secret for signing access tokens |
-| `JWT_EXPIRES_IN` | No | Token lifetime (default: `7d`) |
-| `PORT` | No | Server port (default: `3000`) |
-| `NODE_ENV` | No | e.g. `development`, `prod` |
-| `CLIENT_URL` | No | Comma-separated allowed CORS origins for the frontend |
-| `SERVER_URL` | No | Public API base URL when needed |
-
-Example:
-
-```env
-DATABASE_URL=postgresql://user:password@localhost:5432/asset_tracker
-JWT_SECRET=your-secret-key
-PORT=3000
-NODE_ENV=development
-CLIENT_URL=http://localhost:5173
-```
-
-The frontend expects the API at `http://localhost:3000/api` (`VITE_API_BASE_URL` in `client/.env`).
-
 ## Getting Started
 
 ### Prerequisites
