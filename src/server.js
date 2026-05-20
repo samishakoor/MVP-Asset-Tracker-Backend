@@ -1,10 +1,10 @@
 import app from './app.js';
-import { PORT, NODE_ENV, CLIENT_URL } from './config/index.js';
+import { PORT, NODE_ENV } from './config/index.js';
 
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Server is running on port ${PORT}`);
-  console.log(`📝 Environment: ${NODE_ENV ?? 'undefined'}`);
-  console.log(`🔗 API URL: http://localhost:${PORT}/api`);
+const port = PORT || 3000;
+
+const server = app.listen(port, () => {
+  console.log(`🚀 Server is running on port ${port}`);
 });
 
 // Graceful shutdown
