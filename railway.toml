@@ -1,0 +1,9 @@
+# Railway deploy config (https://docs.railway.com/guides/config-as-code)
+[build]
+builder = "RAILPACK"
+
+[deploy]
+# Sync schema to Postgres before the API listens (uses DATABASE_URL at runtime)
+startCommand = "npm run start"
+healthcheckPath = "/"
+healthcheckTimeout = 120
