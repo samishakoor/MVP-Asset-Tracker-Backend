@@ -7,42 +7,30 @@ const SALT_ROUNDS = 12;
 async function main() {
   console.log('Start seeding...');
 
+  const adminEmail = 'admin@test.com';
+  const existingAdmin = await prisma.user.findUnique({
+    where: { email: adminEmail },
+  });
+
+  if (existingAdmin) {
+    console.log('Admin already exists, skipping seed:', {
+      id: existingAdmin.id,
+      email: existingAdmin.email,
+      role: existingAdmin.role,
+    });
+    return;
+  }
+
   const adminPasswordHash = await bcrypt.hash('Admin123!', SALT_ROUNDS);
-  const employeePasswordHash = await bcrypt.hash('Employee123!', SALT_ROUNDS);
-
-  const admin = await prisma.user.upsert({
-    where: { email: 'admin@test.com' },
-    update: {
-      name: 'Admin User',
-      passwordHash: adminPasswordHash,
-      role: 'admin',
-    },
-    create: {
-      email: 'admin@test.com',
-      name: 'Admin User',
+  const admin = await prisma.user.create({
+    data: {
+      email: adminEmail,
+      name: 'Admin',
       passwordHash: adminPasswordHash,
       role: 'admin',
     },
   });
-
-  const employee = await prisma.user.upsert({
-    where: { email: 'employee@test.com' },
-    update: {
-      name: 'Employee User',
-      passwordHash: employeePasswordHash,
-      role: 'employee',
-    },
-    create: {
-      email: 'employee@test.com',
-      name: 'Employee User',
-      passwordHash: employeePasswordHash,
-      role: 'employee',
-    },
-  });
-
   console.log('Seeded admin:', { id: admin.id, email: admin.email, role: admin.role });
-  console.log('Seeded employee:', { id: employee.id, email: employee.email, role: employee.role });
-  console.log('Seeding finished.');
 }
 
 main()
