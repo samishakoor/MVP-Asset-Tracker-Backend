@@ -1,9 +1,11 @@
 import UserModel from '../models/userModel.js';
+import { EmailService } from './emailService.js';
 import APIError from '../utils/APIError.js';
 import logger from '../utils/logger.js';
 import { hashPassword, comparePassword } from '../utils/passwordHelper.js';
-import { signToken } from '../utils/jwtHelper.js';
+import { signToken, signPasswordResetToken, verifyPasswordResetToken } from '../utils/jwtHelper.js';
 import { sanitizeUser } from '../utils/sanitizeUser.js';
+import { CLIENT_URL } from '../config/index.js';
 import {
   STATUS_CODE,
   ERROR_TYPE,
@@ -17,6 +19,7 @@ import {
 export class AuthService {
   constructor() {
     this.UserModel = new UserModel();
+    this.emailService = new EmailService();
   }
 
   /**
@@ -102,6 +105,83 @@ export class AuthService {
       }
 
       return this.buildAuthResponse(user);
+    } catch (err) {
+      logger.error({ errorType: ERROR_TYPE.API_ERROR, message: err.message });
+      throw err;
+    }
+  }
+
+  /**
+   * Sends a password reset email when the account exists.
+   *
+   * @param {{ email: string }} payload - Validated forgot-password payload.
+   * @returns {Promise<void>}
+   * @throws {APIError}
+   */
+  async forgotPassword(payload) {
+    try {
+      const user = await this.UserModel.findByEmail(payload.email);
+
+      if (!user) {
+        throw new APIError(
+          ERROR_MESSAGE.ACCOUNT_EMAIL_NOT_FOUND,
+          STATUS_CODE.NOT_FOUND,
+          ERROR_TYPE.NOT_FOUND
+        );
+      }
+
+      if (!CLIENT_URL) {
+        throw new APIError(
+          ERROR_MESSAGE.EMAIL_SEND_FAILED,
+          STATUS_CODE.INTERNAL_SERVER_ERROR,
+          ERROR_TYPE.INTERNAL_ERROR
+        );
+      }
+
+      const resetToken = signPasswordResetToken({
+        id: user.id,
+        email: user.email,
+      });
+
+      const resetUrl = `${CLIENT_URL}/reset-password?token=${encodeURIComponent(resetToken)}`;
+      await this.emailService.sendPasswordResetEmail(user.name, user.email, resetUrl);
+    } catch (err) {
+      logger.error({ errorType: ERROR_TYPE.API_ERROR, message: err.message });
+      throw err;
+    }
+  }
+
+  /**
+   * Resets a user's password using a valid reset JWT.
+   *
+   * @param {{ token: string, password: string }} payload - Validated reset-password payload.
+   * @returns {Promise<void>}
+   * @throws {APIError}
+   */
+  async resetPassword(payload) {
+    try {
+      const tokenPayload = verifyPasswordResetToken(payload.token);
+
+      if (!tokenPayload) {
+        throw new APIError(
+          ERROR_MESSAGE.INVALID_RESET_TOKEN,
+          STATUS_CODE.BAD_REQUEST,
+          ERROR_TYPE.API_ERROR
+        );
+      }
+
+      const user = await this.UserModel.findById(tokenPayload.id);
+
+      if (!user || user.email !== tokenPayload.email) {
+        throw new APIError(
+          ERROR_MESSAGE.INVALID_RESET_TOKEN,
+          STATUS_CODE.BAD_REQUEST,
+          ERROR_TYPE.API_ERROR
+        );
+      }
+
+      const passwordHash = await hashPassword(payload.password);
+      await this.UserModel.updatePasswordHash(user.id, passwordHash);
     } catch (err) {
       logger.error({ errorType: ERROR_TYPE.API_ERROR, message: err.message });
       throw err;

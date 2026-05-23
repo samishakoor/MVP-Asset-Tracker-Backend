@@ -37,6 +37,13 @@ export const ERROR_MESSAGE = {
   ASSET_NOT_AVAILABLE: 'Asset is not available for assignment',
   TICKET_NOT_FOUND: 'Support ticket not found',
   TICKET_INVALID_ACTION: 'Invalid ticket review action',
+  INVALID_RESET_TOKEN: 'Password reset link is invalid or has expired',
+  EMAIL_SEND_FAILED: 'Unable to send password reset email. Please try again later',
+  ACCOUNT_EMAIL_NOT_FOUND: 'No account is registered with this email address',
+};
+
+export const TokenPurpose = {
+  PASSWORD_RESET: 'password_reset',
 };
 
 export const SUCCESS_MESSAGE = {
@@ -47,6 +54,8 @@ export const SUCCESS_MESSAGE = {
   USER_DELETED: 'User deleted successfully',
   SIGNUP_SUCCESS: 'Account created successfully',
   LOGIN_SUCCESS: 'Logged in successfully',
+  FORGOT_PASSWORD_EMAIL_SENT: 'Password reset link sent to your email',
+  PASSWORD_RESET_SUCCESS: 'Password reset successfully. You can now sign in with your new password',
   ASSETS_FETCHED: 'Assets fetched successfully',
   ASSET_FETCHED: 'Asset fetched successfully',
   ASSET_CREATED: 'Asset created successfully',

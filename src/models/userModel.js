@@ -43,6 +43,13 @@ export class UserModel {
     });
   }
 
+  async updatePasswordHash(id, passwordHash) {
+    return await prisma.user.update({
+      where: { id },
+      data: { passwordHash },
+    });
+  }
+
   async delete(id) {
     return await prisma.user.delete({
       where: { id },

@@ -1,10 +1,15 @@
 import catchAsync from '../utils/catchAsync.js';
 import APIError from '../utils/APIError.js';
 import { STATUS_CODE, ERROR_TYPE, SUCCESS_MESSAGE } from '../constants/index.js';
-import { successWithData } from '../utils/response.js';
+import { success, successWithData } from '../utils/response.js';
 import logger from '../utils/logger.js';
 import { AuthService } from '../services/authService.js';
-import { signupSchema, loginSchema } from '../validators/authSchemas.js';
+import {
+  signupSchema,
+  loginSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+} from '../validators/authSchemas.js';
 
 const authService = new AuthService();
 
@@ -36,4 +41,34 @@ export const login = catchAsync(async (req, res, next) => {
 
   const data = await authService.login(validatedBody);
   res.status(STATUS_CODE.OK).json(successWithData(data, SUCCESS_MESSAGE.LOGIN_SUCCESS));
+});
+
+export const forgotPassword = catchAsync(async (req, res, next) => {
+  const { error, value: validatedBody } = forgotPasswordSchema.validate(req.body, {
+    abortEarly: false,
+  });
+  if (error) {
+    logger.error({ errorType: ERROR_TYPE.VALIDATION_ERROR, message: error.message });
+    return next(
+      new APIError(error.message, STATUS_CODE.BAD_REQUEST, ERROR_TYPE.VALIDATION_ERROR)
+    );
+  }
+
+  await authService.forgotPassword(validatedBody);
+  res.status(STATUS_CODE.OK).json(success(SUCCESS_MESSAGE.FORGOT_PASSWORD_EMAIL_SENT));
+});
+
+export const resetPassword = catchAsync(async (req, res, next) => {
+  const { error, value: validatedBody } = resetPasswordSchema.validate(req.body, {
+    abortEarly: false,
+  });
+  if (error) {
+    logger.error({ errorType: ERROR_TYPE.VALIDATION_ERROR, message: error.message });
+    return next(
+      new APIError(error.message, STATUS_CODE.BAD_REQUEST, ERROR_TYPE.VALIDATION_ERROR)
+    );
+  }
+
+  await authService.resetPassword(validatedBody);
+  res.status(STATUS_CODE.OK).json(success(SUCCESS_MESSAGE.PASSWORD_RESET_SUCCESS));
 });
