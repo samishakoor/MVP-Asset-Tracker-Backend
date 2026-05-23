@@ -1,21 +1,28 @@
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 import APIError from '../utils/APIError.js';
 import logger from '../utils/logger.js';
-import { RESEND_FROM, RESEND_TOKEN } from '../config/index.js';
+import {
+  SMTP_FROM,
+  SMTP_HOST,
+  SMTP_PASS,
+  SMTP_PORT,
+  SMTP_SECURE,
+  SMTP_USER,
+} from '../config/index.js';
 import { ERROR_MESSAGE, ERROR_TYPE, STATUS_CODE } from '../constants/index.js';
 
 /**
- * Service for sending transactional emails via Resend.
+ * Service for sending transactional emails via SMTP.
  */
 export class EmailService {
   /**
-   * Creates a Resend client from environment configuration.
+   * Creates a nodemailer transport from environment configuration.
    *
-   * @returns {Resend}
+   * @returns {import('nodemailer').Transporter}
    * @throws {APIError}
    */
-  createResendClient() {
-    if (!RESEND_TOKEN || !RESEND_FROM) {
+  createTransport() {
+    if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS || !SMTP_FROM) {
       throw new APIError(
         ERROR_MESSAGE.EMAIL_SEND_FAILED,
         STATUS_CODE.INTERNAL_SERVER_ERROR,
@@ -23,7 +30,15 @@ export class EmailService {
       );
     }
 
-    return new Resend(RESEND_TOKEN);
+    return nodemailer.createTransport({
+      host: SMTP_HOST,
+      port: SMTP_PORT,
+      secure: SMTP_SECURE,
+      auth: {
+        user: SMTP_USER,
+        pass: SMTP_PASS,
+      },
+    });
   }
 
   /**
@@ -98,11 +113,11 @@ export class EmailService {
    */
   async sendPasswordResetEmail(userName, email, resetUrl) {
     try {
-      const resend = this.createResendClient();
+      const transport = this.createTransport();
       const html = this.buildPasswordResetEmailHtml(userName, resetUrl);
 
-      await resend.emails.send({
-        from: RESEND_FROM,
+      await transport.sendMail({
+        from: SMTP_FROM,
         to: email,
         subject: 'Reset your AssetTrack password',
         html,
@@ -189,11 +204,11 @@ export class EmailService {
    */
   async sendEmailVerificationEmail(userName, email, verifyUrl) {
     try {
-      const resend = this.createResendClient();
+      const transport = this.createTransport();
       const html = this.buildEmailVerificationHtml(userName, verifyUrl);
 
-      await resend.emails.send({
-        from: RESEND_FROM,
+      await transport.sendMail({
+        from: SMTP_FROM,
         to: email,
         subject: 'Verify your AssetTrack email address',
         html,
