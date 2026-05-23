@@ -93,7 +93,8 @@ export class AuthService {
    */
   async login(credentials) {
     try {
-      const user = await this.UserModel.findByEmail(credentials.email);
+      const userEmail = credentials.email.toLowerCase();
+      const user = await this.UserModel.findByEmail(userEmail);
 
       if (!user) {
         throw new APIError(
@@ -171,7 +172,8 @@ export class AuthService {
    */
   async sendVerificationEmail(payload) {
     try {
-      const user = await this.UserModel.findByEmail(payload.email);
+      const userEmail = payload.email.toLowerCase();
+      const user = await this.UserModel.findByEmail(userEmail);
 
       if (!user) {
         throw new APIError(
@@ -237,7 +239,8 @@ export class AuthService {
    */
   async forgotPassword(payload) {
     try {
-      const user = await this.UserModel.findByEmail(payload.email);
+      const userEmail = payload.email.toLowerCase();
+      const user = await this.UserModel.findByEmail(userEmail);
 
       if (!user) {
         throw new APIError(
