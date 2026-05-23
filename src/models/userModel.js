@@ -5,6 +5,7 @@ const userPublicSelect = {
   name: true,
   email: true,
   role: true,
+  isVerified: true,
   createdAt: true,
   updatedAt: true,
 };
@@ -47,6 +48,14 @@ export class UserModel {
     return await prisma.user.update({
       where: { id },
       data: { passwordHash },
+    });
+  }
+
+  async markEmailVerified(id) {
+    return await prisma.user.update({
+      where: { id },
+      data: { isVerified: true },
+      select: userPublicSelect,
     });
   }
 

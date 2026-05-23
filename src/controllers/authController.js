@@ -9,6 +9,8 @@ import {
   loginSchema,
   forgotPasswordSchema,
   resetPasswordSchema,
+  sendVerificationEmailSchema,
+  verifyEmailSchema,
 } from '../validators/authSchemas.js';
 
 const authService = new AuthService();
@@ -71,4 +73,34 @@ export const resetPassword = catchAsync(async (req, res, next) => {
 
   await authService.resetPassword(validatedBody);
   res.status(STATUS_CODE.OK).json(success(SUCCESS_MESSAGE.PASSWORD_RESET_SUCCESS));
+});
+
+export const sendVerificationEmail = catchAsync(async (req, res, next) => {
+  const { error, value: validatedBody } = sendVerificationEmailSchema.validate(req.body, {
+    abortEarly: false,
+  });
+  if (error) {
+    logger.error({ errorType: ERROR_TYPE.VALIDATION_ERROR, message: error.message });
+    return next(
+      new APIError(error.message, STATUS_CODE.BAD_REQUEST, ERROR_TYPE.VALIDATION_ERROR)
+    );
+  }
+
+  await authService.sendVerificationEmail(validatedBody);
+  res.status(STATUS_CODE.OK).json(success(SUCCESS_MESSAGE.VERIFICATION_EMAIL_SENT));
+});
+
+export const verifyEmail = catchAsync(async (req, res, next) => {
+  const { error, value: validatedBody } = verifyEmailSchema.validate(req.body, {
+    abortEarly: false,
+  });
+  if (error) {
+    logger.error({ errorType: ERROR_TYPE.VALIDATION_ERROR, message: error.message });
+    return next(
+      new APIError(error.message, STATUS_CODE.BAD_REQUEST, ERROR_TYPE.VALIDATION_ERROR)
+    );
+  }
+
+  await authService.verifyEmail(validatedBody);
+  res.status(STATUS_CODE.OK).json(success(SUCCESS_MESSAGE.EMAIL_VERIFIED_SUCCESS));
 });

@@ -40,10 +40,14 @@ export const ERROR_MESSAGE = {
   INVALID_RESET_TOKEN: 'Password reset link is invalid or has expired',
   EMAIL_SEND_FAILED: 'Unable to send password reset email. Please try again later',
   ACCOUNT_EMAIL_NOT_FOUND: 'No account is registered with this email address',
+  EMAIL_ALREADY_VERIFIED: 'This email address is already verified',
+  EMAIL_NOT_VERIFIED: 'Your email is not verified. Please verify your email before signing in',
+  INVALID_VERIFICATION_TOKEN: 'Email verification link is invalid or has expired',
 };
 
 export const TokenPurpose = {
   PASSWORD_RESET: 'password_reset',
+  EMAIL_VERIFICATION: 'email_verification',
 };
 
 export const SUCCESS_MESSAGE = {
@@ -52,10 +56,12 @@ export const SUCCESS_MESSAGE = {
   USER_CREATED: 'User created successfully',
   USER_UPDATED: 'User updated successfully',
   USER_DELETED: 'User deleted successfully',
-  SIGNUP_SUCCESS: 'Account created successfully',
+  SIGNUP_SUCCESS: 'Account created. Verification email sent to your inbox',
   LOGIN_SUCCESS: 'Logged in successfully',
   FORGOT_PASSWORD_EMAIL_SENT: 'Password reset link sent to your email',
   PASSWORD_RESET_SUCCESS: 'Password reset successfully. You can now sign in with your new password',
+  VERIFICATION_EMAIL_SENT: 'Verification email sent. Please check your inbox',
+  EMAIL_VERIFIED_SUCCESS: 'Email verified successfully. You can now sign in',
   ASSETS_FETCHED: 'Assets fetched successfully',
   ASSET_FETCHED: 'Asset fetched successfully',
   ASSET_CREATED: 'Asset created successfully',

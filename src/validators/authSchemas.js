@@ -22,3 +22,11 @@ export const resetPasswordSchema = Joi.object({
     'any.only': 'Passwords do not match',
   }),
 });
+
+export const sendVerificationEmailSchema = Joi.object({
+  email: Joi.string().email().required(),
+});
+
+export const verifyEmailSchema = Joi.object({
+  token: Joi.string().trim().min(1).required(),
+});

@@ -13,11 +13,19 @@ async function main() {
   });
 
   if (existingAdmin) {
-    console.log('Admin already exists, skipping seed:', {
-      id: existingAdmin.id,
-      email: existingAdmin.email,
-      role: existingAdmin.role,
-    });
+    if (!existingAdmin.isVerified) {
+      await prisma.user.update({
+        where: { id: existingAdmin.id },
+        data: { isVerified: true },
+      });
+      console.log('Updated existing admin to verified:', { email: existingAdmin.email });
+    } else {
+      console.log('Admin already exists, skipping seed:', {
+        id: existingAdmin.id,
+        email: existingAdmin.email,
+        role: existingAdmin.role,
+      });
+    }
     return;
   }
 
@@ -28,6 +36,7 @@ async function main() {
       name: 'Admin',
       passwordHash: adminPasswordHash,
       role: 'admin',
+      isVerified: true,
     },
   });
   console.log('Seeded admin:', { id: admin.id, email: admin.email, role: admin.role });

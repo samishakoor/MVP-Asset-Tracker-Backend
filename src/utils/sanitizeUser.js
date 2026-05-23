@@ -10,6 +10,7 @@ export function sanitizeUser(user) {
     name: user.name,
     email: user.email,
     role: user.role,
+    isVerified: user.isVerified,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
   };

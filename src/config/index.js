@@ -26,3 +26,5 @@ export const SMTP_PASS = process.env.SMTP_PASS;
 export const SMTP_FROM = process.env.SMTP_FROM;
 export const JWT_PASSWORD_RESET_TOKEN_EXPIRE_TIME =
   Number(process.env.JWT_PASSWORD_RESET_TOKEN_EXPIRE_TIME) || 60;
+export const JWT_EMAIL_VERIFICATION_TOKEN_EXPIRE_TIME =
+  Number(process.env.JWT_EMAIL_VERIFICATION_TOKEN_EXPIRE_TIME) || 1440;
