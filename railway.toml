@@ -5,5 +5,5 @@ builder = "RAILPACK"
 [deploy]
 # Sync schema to Postgres before the API listens (uses DATABASE_URL at runtime)
 startCommand = "npm run start"
-healthcheckPath = "/"
-healthcheckTimeout = 120
+healthcheckPath = "/api/ping"
+healthcheckTimeout = 300

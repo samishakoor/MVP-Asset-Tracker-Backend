@@ -11,15 +11,23 @@ function run(command, args) {
   }
 }
 
-// Sync schema before the API starts (idempotent on every deploy)
+if (!process.env.DATABASE_URL) {
+  console.error(
+    'DATABASE_URL is not set. In Railway, link the Postgres service to this API service.'
+  );
+  process.exit(1);
+}
+
+console.log('Syncing database schema...');
 run('npx', ['prisma', 'db', 'push']);
 
-// One-time setup: seed runs on Railway only; seed.js skips if admin already exists
 const onRailway = Boolean(process.env.RAILWAY_ENVIRONMENT);
 const seedDisabled = process.env.SEED_ON_START === 'false';
 
 if (onRailway && !seedDisabled) {
+  console.log('Running database seed...');
   run('node', ['prisma/seed.js']);
 }
 
+console.log('Starting HTTP server...');
 run('node', ['src/server.js']);
