@@ -20,6 +20,8 @@ export const ERROR_TYPE = {
 };
 
 export const ERROR_MESSAGE = {
+  DB_CONNECTION_ERROR: 'Database connection failed',
+  UNEXPECTED_ERROR: 'An unexpected error occurred during startup',
   USER_NOT_FOUND: 'User not found',
   USER_ALREADY_EXIST: 'User with this email already exists',
   INVALID_CREDENTIALS: 'Invalid email or password',
@@ -51,6 +53,7 @@ export const TokenPurpose = {
 };
 
 export const SUCCESS_MESSAGE = {
+  DB_CONNECTION_SUCCESS: 'Database connected successfully!',
   USERS_FETCHED: 'Users fetched successfully',
   USER_FETCHED: 'User fetched successfully',
   USER_CREATED: 'User created successfully',

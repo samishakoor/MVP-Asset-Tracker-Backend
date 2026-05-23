@@ -1,24 +1,41 @@
 import app from './app.js';
 import { PORT } from './config/index.js';
+import { connectDatabase } from './config/database.js';
+import { ERROR_MESSAGE, SUCCESS_MESSAGE } from './constants/index.js';
+import logger from './utils/logger.js';
 
 const port = PORT || 3000;
 
-const server = app.listen(port, () => {
-  console.log(`🚀 Server is running on port ${port}`);
-});
+async function startServer() {
+  try {
+    await connectDatabase();
+    logger.info({ message: SUCCESS_MESSAGE.DB_CONNECTION_SUCCESS });
+  } catch (error) {
+    if (error instanceof Error) {
+      logger.error({ message: `${ERROR_MESSAGE.DB_CONNECTION_ERROR}: ${error.message}` });
+    }
+    logger.error({ message: ERROR_MESSAGE.UNEXPECTED_ERROR });
+    process.exit(1);
+  }
 
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM signal received: closing HTTP server');
-  server.close(() => {
-    console.log('HTTP server closed');
+  const server = app.listen(port, () => {
+    logger.info({ message: `🚀 Server is running on port ${port}` });
   });
-});
 
-process.on('SIGINT', () => {
-  console.log('SIGINT signal received: closing HTTP server');
-  server.close(() => {
-    console.log('HTTP server closed');
-    process.exit(0);
+  process.on('SIGTERM', () => {
+    logger.info({ message: 'SIGTERM signal received: closing HTTP server' });
+    server.close(() => {
+      logger.info({ message: 'HTTP server closed' });
+    });
   });
-});
+
+  process.on('SIGINT', () => {
+    logger.info({ message: 'SIGINT signal received: closing HTTP server' });
+    server.close(() => {
+      logger.info({ message: 'HTTP server closed' });
+      process.exit(0);
+    });
+  });
+}
+
+startServer();
