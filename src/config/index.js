@@ -18,12 +18,11 @@ export const JWT_SECRET = process.env.JWT_SECRET;
 export const JWT_ACCESS_TOKEN_EXPIRE_TIME = process.env.JWT_ACCESS_TOKEN_EXPIRE_TIME || '7d';
 export const CLIENT_URL = process.env.CLIENT_URL;
 export const SERVER_URL = process.env.SERVER_URL;
-export const SMTP_HOST = process.env.SMTP_HOST;
-export const SMTP_PORT = Number(process.env.SMTP_PORT) || 587;
-export const SMTP_SECURE = process.env.SMTP_SECURE === 'true';
-export const SMTP_USER = process.env.SMTP_USER;
-export const SMTP_PASS = process.env.SMTP_PASS;
-export const SMTP_FROM = process.env.SMTP_FROM;
+export const OAUTH_CLIENT_ID = process.env.OAUTH_CLIENT_ID;
+export const OAUTH_CLIENT_SECRET = process.env.OAUTH_CLIENT_SECRET;
+export const OAUTH_REFRESH_TOKEN = process.env.OAUTH_REFRESH_TOKEN;
+export const OAUTH_EMAIL = process.env.OAUTH_EMAIL;
+export const OAUTH_REDIRECT_URI = process.env.OAUTH_REDIRECT_URI;
 export const JWT_PASSWORD_RESET_TOKEN_EXPIRE_TIME =
   Number(process.env.JWT_PASSWORD_RESET_TOKEN_EXPIRE_TIME) || 60;
 export const JWT_EMAIL_VERIFICATION_TOKEN_EXPIRE_TIME =

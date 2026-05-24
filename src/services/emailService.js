@@ -1,42 +1,92 @@
-import nodemailer from 'nodemailer';
+import { google } from 'googleapis';
+import MailComposer from 'nodemailer/lib/mail-composer/index.js';
 import APIError from '../utils/APIError.js';
 import logger from '../utils/logger.js';
 import {
-  SMTP_FROM,
-  SMTP_HOST,
-  SMTP_PASS,
-  SMTP_PORT,
-  SMTP_SECURE,
-  SMTP_USER,
+  OAUTH_CLIENT_ID,
+  OAUTH_CLIENT_SECRET,
+  OAUTH_EMAIL,
+  OAUTH_REDIRECT_URI,
+  OAUTH_REFRESH_TOKEN,
 } from '../config/index.js';
 import { ERROR_MESSAGE, ERROR_TYPE, STATUS_CODE } from '../constants/index.js';
 
+const APP_NAME = 'AssetTrack';
+
 /**
- * Service for sending transactional emails via SMTP.
+ * Service for sending transactional emails via Gmail OAuth API.
  */
 export class EmailService {
+  constructor() {
+    this.oauth2Client = new google.auth.OAuth2(
+      OAUTH_CLIENT_ID,
+      OAUTH_CLIENT_SECRET,
+      OAUTH_REDIRECT_URI || 'https://developers.google.com/oauthplayground'
+    );
+
+    this.oauth2Client.setCredentials({
+      refresh_token: OAUTH_REFRESH_TOKEN,
+    });
+
+    this.gmail = google.gmail({ version: 'v1', auth: this.oauth2Client });
+  }
+
   /**
-   * Creates a nodemailer transport from environment configuration.
+   * Ensures OAuth credentials are configured before sending.
    *
-   * @returns {import('nodemailer').Transporter}
    * @throws {APIError}
    */
-  createTransport() {
-    if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS || !SMTP_FROM) {
+  assertOAuthConfig() {
+    if (!OAUTH_CLIENT_ID || !OAUTH_CLIENT_SECRET || !OAUTH_REFRESH_TOKEN || !OAUTH_EMAIL) {
       throw new APIError(
         ERROR_MESSAGE.EMAIL_SEND_FAILED,
         STATUS_CODE.INTERNAL_SERVER_ERROR,
         ERROR_TYPE.INTERNAL_ERROR
       );
     }
+  }
 
-    return nodemailer.createTransport({
-      host: SMTP_HOST,
-      port: SMTP_PORT,
-      secure: SMTP_SECURE,
-      auth: {
-        user: SMTP_USER,
-        pass: SMTP_PASS,
+  /**
+   * Encodes a MIME message buffer for Gmail API raw send.
+   *
+   * @param {Buffer} messageBuffer
+   * @returns {string}
+   */
+  encodeRawMessage(messageBuffer) {
+    return Buffer.from(messageBuffer)
+      .toString('base64')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
+  }
+
+  /**
+   * Sends an HTML email via the Gmail API.
+   *
+   * @param {string} to - Recipient email address.
+   * @param {string} subject - Email subject line.
+   * @param {string} htmlContent - HTML email body.
+   * @returns {Promise<void>}
+   * @throws {APIError}
+   */
+  async sendEmail(to, subject, htmlContent) {
+    this.assertOAuthConfig();
+
+    const mailOptions = {
+      from: `${APP_NAME} <${OAUTH_EMAIL}>`,
+      to,
+      subject,
+      html: htmlContent,
+    };
+
+    const mail = new MailComposer(mailOptions);
+    const message = await mail.compile().build();
+    const rawMessage = this.encodeRawMessage(message);
+
+    await this.gmail.users.messages.send({
+      userId: 'me',
+      requestBody: {
+        raw: rawMessage,
       },
     });
   }
@@ -113,15 +163,8 @@ export class EmailService {
    */
   async sendPasswordResetEmail(userName, email, resetUrl) {
     try {
-      const transport = this.createTransport();
       const html = this.buildPasswordResetEmailHtml(userName, resetUrl);
-
-      await transport.sendMail({
-        from: SMTP_FROM,
-        to: email,
-        subject: 'Reset your AssetTrack password',
-        html,
-      });
+      await this.sendEmail(email, 'Reset your AssetTrack password', html);
     } catch (err) {
       logger.error({ errorType: ERROR_TYPE.INTERNAL_ERROR, message: err.message });
       throw new APIError(
@@ -204,15 +247,8 @@ export class EmailService {
    */
   async sendEmailVerificationEmail(userName, email, verifyUrl) {
     try {
-      const transport = this.createTransport();
       const html = this.buildEmailVerificationHtml(userName, verifyUrl);
-
-      await transport.sendMail({
-        from: SMTP_FROM,
-        to: email,
-        subject: 'Verify your AssetTrack email address',
-        html,
-      });
+      await this.sendEmail(email, 'Verify your AssetTrack email address', html);
     } catch (err) {
       logger.error({ errorType: ERROR_TYPE.INTERNAL_ERROR, message: err.message });
       throw new APIError(
