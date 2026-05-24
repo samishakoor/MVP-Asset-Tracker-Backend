@@ -7,25 +7,17 @@ const SALT_ROUNDS = 12;
 async function main() {
   console.log('Start seeding...');
 
-  const adminEmail = 'admin@test.com';
+  const adminEmail = 'sami.shakoor@codefulcrum.com';
   const existingAdmin = await prisma.user.findUnique({
     where: { email: adminEmail },
   });
 
   if (existingAdmin) {
-    if (!existingAdmin.isVerified) {
-      await prisma.user.update({
-        where: { id: existingAdmin.id },
-        data: { isVerified: true },
-      });
-      console.log('Updated existing admin to verified:', { email: existingAdmin.email });
-    } else {
       console.log('Admin already exists, skipping seed:', {
         id: existingAdmin.id,
         email: existingAdmin.email,
         role: existingAdmin.role,
       });
-    }
     return;
   }
 
