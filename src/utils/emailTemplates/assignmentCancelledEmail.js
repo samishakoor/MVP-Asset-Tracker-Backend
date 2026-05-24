@@ -54,7 +54,7 @@ export function buildAssignmentCancelledEmailHtml(placeholders) {
 
   return buildEmailLayoutHtml({
     pageTitle: 'Assignment cancelled',
-    headerTitle: 'Your assetassignment has been cancelled',
+    headerTitle: 'Your asset assignment has been cancelled',
     extraHead: buildAssetDetailsEmailStyles(),
     bodyContent,
   });
