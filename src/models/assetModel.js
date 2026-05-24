@@ -1,5 +1,15 @@
 import prisma from '../config/database.js';
 
+export const activeAssetFilter = { isDeleted: false };
+
+export const assignmentActiveAssetFilter = {
+  asset: activeAssetFilter,
+};
+
+export const supportTicketActiveAssetFilter = {
+  assignment: assignmentActiveAssetFilter,
+};
+
 const activeAssignmentInclude = {
   where: { isActive: true },
   take: 1,
@@ -57,15 +67,21 @@ export class AssetModel {
     });
   }
 
-  async findBySerialNumber(serialNumber) {
-    return await prisma.asset.findUnique({
-      where: { serialNumber },
+  async findActiveBySerialNumber(serialNumber) {
+    return await prisma.asset.findFirst({
+      where: {
+        serialNumber,
+        ...activeAssetFilter,
+      },
     });
   }
 
   async findAll(where) {
     return await prisma.asset.findMany({
-      where,
+      where: {
+        ...where,
+        ...activeAssetFilter,
+      },
       orderBy: { createdAt: 'desc' },
       include: {
         assignments: activeAssignmentInclude,
@@ -74,6 +90,16 @@ export class AssetModel {
   }
 
   async findById(id) {
+    return await prisma.asset.findFirst({
+      where: {
+        id,
+        ...activeAssetFilter,
+      },
+      include: detailInclude,
+    });
+  }
+
+  async findRawById(id) {
     return await prisma.asset.findUnique({
       where: { id },
       include: detailInclude,
@@ -108,9 +134,17 @@ export class AssetModel {
     });
   }
 
-  async delete(id) {
-    return await prisma.asset.delete({
+  async softDelete(id) {
+    return await prisma.asset.update({
       where: { id },
+      data: { isDeleted: true },
+    });
+  }
+
+  async softDeleteInTransaction(tx, id) {
+    return await tx.asset.update({
+      where: { id },
+      data: { isDeleted: true },
     });
   }
 
@@ -125,6 +159,7 @@ export class AssetModel {
 
   async findDistinctAssetTypes() {
     return await prisma.asset.findMany({
+      where: activeAssetFilter,
       select: { assetType: true },
       distinct: ['assetType'],
       orderBy: { assetType: 'asc' },

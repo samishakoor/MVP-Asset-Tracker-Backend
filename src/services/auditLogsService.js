@@ -41,7 +41,7 @@ export class AuditLogsService {
       const events = eventsRaw.map((event) => ({
         id: event.id,
         asset_id: event.assetId,
-        asset_name: event.asset.name,
+        asset_name: event.asset?.name ?? event.metadata?.assetName ?? null,
         triggered_by: event.triggeredBy,
         triggered_by_name: event.trigger.name,
         event_type: event.eventType,

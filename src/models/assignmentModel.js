@@ -1,4 +1,5 @@
 import prisma from '../config/database.js';
+import { assignmentActiveAssetFilter } from './assetModel.js';
 
 const employeeAssignmentInclude = {
   asset: {
@@ -54,8 +55,11 @@ export class AssignmentModel {
   }
 
   async findById(id) {
-    return await prisma.assignment.findUnique({
-      where: { id },
+    return await prisma.assignment.findFirst({
+      where: {
+        id,
+        ...assignmentActiveAssetFilter,
+      },
       include: fullAssignmentInclude,
     });
   }
@@ -66,6 +70,7 @@ export class AssignmentModel {
         id,
         employeeId,
         isActive: true,
+        ...assignmentActiveAssetFilter,
       },
       include: fullAssignmentInclude,
     });
@@ -76,6 +81,7 @@ export class AssignmentModel {
       where: {
         id,
         isActive: true,
+        ...assignmentActiveAssetFilter,
       },
       include: fullAssignmentInclude,
     });
@@ -86,6 +92,7 @@ export class AssignmentModel {
       where: {
         employeeId,
         isActive: true,
+        ...assignmentActiveAssetFilter,
       },
       include: employeeAssignmentInclude,
       orderBy: {
@@ -99,6 +106,7 @@ export class AssignmentModel {
       where: {
         assetId,
         employeeId,
+        ...assignmentActiveAssetFilter,
       },
       include: {
         asset: {

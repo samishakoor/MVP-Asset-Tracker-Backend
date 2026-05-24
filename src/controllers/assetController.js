@@ -108,6 +108,6 @@ export const deleteAsset = catchAsync(async (req, res, next) => {
     );
   }
 
-  await assetService.deleteAsset(validatedParams.id);
+  await assetService.deleteAsset(validatedParams.id, req.user.id);
   res.status(STATUS_CODE.OK).json(successWithData(null, SUCCESS_MESSAGE.ASSET_DELETED));
 });

@@ -309,6 +309,17 @@ export class AssignmentService {
         );
       }
 
+      if (
+        assignment.currentStatus === AssetStatus.AVAILABLE ||
+        assignment.currentStatus === AssetStatus.ASSIGNED
+      ) {
+        throw new APIError(
+          ERROR_MESSAGE.ASSET_RETURN_NOT_ALLOWED,
+          STATUS_CODE.BAD_REQUEST,
+          ERROR_TYPE.VALIDATION_ERROR
+        );
+      }
+
       const returnedAt = new Date();
 
       const updatedAssignment = await this.AssetModel.runTransaction(async (tx) => {

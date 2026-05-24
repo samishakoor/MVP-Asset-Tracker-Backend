@@ -36,6 +36,8 @@ export const ERROR_MESSAGE = {
   ASSIGNMENT_NOT_FOUND: 'Assignment not found',
   ASSIGNMENT_NOT_ACTIVE: 'Assignment is not active',
   ASSIGNMENT_NOT_OWNED: 'This assignment does not belong to you',
+  ASSET_RETURN_NOT_ALLOWED:
+    'Asset can only be returned after the employee has acknowledged it',
   ASSET_NOT_AVAILABLE: 'Asset is not available for assignment',
   TICKET_NOT_FOUND: 'Support ticket not found',
   TICKET_INVALID_ACTION: 'Invalid ticket review action',
@@ -138,6 +140,7 @@ export const EventType = {
   TICKET_OPENED: 'ticket_opened',
   REPAIR_STARTED: 'repair_started',
   REPAIR_COMPLETED: 'repair_completed',
+  DELETED: 'deleted',
 };
 
 export const TicketStatus = {

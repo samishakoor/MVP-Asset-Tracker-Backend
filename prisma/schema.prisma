@@ -44,6 +44,7 @@ enum EventType {
   ticket_opened
   repair_started
   repair_completed
+  deleted
 }
 
 model User {
@@ -70,10 +71,11 @@ model Asset {
   id           String         @id @default(uuid())
   name         String
   assetType    String         @map("asset_type")
-  serialNumber String         @unique @map("serial_number")
+  serialNumber String         @map("serial_number")
   condition    AssetCondition
   status       AssetStatus    @default(available)
   notes        String?
+  isDeleted    Boolean        @default(false) @map("is_deleted")
   createdAt    DateTime       @default(now()) @map("created_at")
   updatedAt    DateTime       @updatedAt @map("updated_at")
 
@@ -122,15 +124,15 @@ model SupportTicket {
 
 model AssetEvent {
   id          String    @id @default(uuid())
-  assetId     String    @map("asset_id")
+  assetId     String   @map("asset_id")
   triggeredBy String    @map("triggered_by")
   eventType   EventType @map("event_type")
   notes       String?
   metadata    Json?
   createdAt   DateTime  @default(now()) @map("created_at")
 
-  asset   Asset @relation(fields: [assetId], references: [id])
-  trigger User  @relation(fields: [triggeredBy], references: [id])
+  asset   Asset? @relation(fields: [assetId], references: [id])
+  trigger User   @relation(fields: [triggeredBy], references: [id])
 
   @@map("asset_events")
 }

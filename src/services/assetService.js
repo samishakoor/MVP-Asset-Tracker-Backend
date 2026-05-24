@@ -164,7 +164,7 @@ export class AssetService {
    */
   async createAsset(data, triggeredByUserId) {
     try {
-      const existing = await this.AssetModel.findBySerialNumber(data.serialNumber);
+      const existing = await this.AssetModel.findActiveBySerialNumber(data.serialNumber);
 
       if (existing) {
         throw new APIError(
@@ -347,8 +347,8 @@ export class AssetService {
       }
 
       if (updateData.serialNumber && updateData.serialNumber !== existing.serialNumber) {
-        const duplicate = await this.AssetModel.findBySerialNumber(updateData.serialNumber);
-        if (duplicate) {
+        const duplicate = await this.AssetModel.findActiveBySerialNumber(updateData.serialNumber);
+        if (duplicate && duplicate.id !== assetId) {
           throw new APIError(
             ERROR_MESSAGE.ASSET_SERIAL_EXISTS,
             STATUS_CODE.CONFLICT,
@@ -402,17 +402,19 @@ export class AssetService {
   }
 
   /**
-   * Deletes an asset if it has no active assignments.
+   * Soft-deletes an asset if it is available and logs a DELETED event.
+   * Assignments and support tickets are retained but hidden from list queries.
    *
    * @param {string} assetId - Asset UUID.
+   * @param {string} triggeredByUserId - Admin user UUID.
    * @returns {Promise<void>}
    * @throws {APIError}
    */
-  async deleteAsset(assetId) {
+  async deleteAsset(assetId, triggeredByUserId) {
     try {
-      const existing = await this.AssetModel.findById(assetId);
+      const existing = await this.AssetModel.findRawById(assetId);
 
-      if (!existing) {
+      if (!existing || existing.isDeleted) {
         throw new APIError(
           ERROR_MESSAGE.ASSET_NOT_FOUND,
           STATUS_CODE.NOT_FOUND,
@@ -420,17 +422,28 @@ export class AssetService {
         );
       }
 
-      const activeAssignmentCount = await this.AssetModel.countActiveAssignments(assetId);
-
-      if (activeAssignmentCount > 0) {
+      if (existing.status !== AssetStatus.AVAILABLE) {
         throw new APIError(
-          ERROR_MESSAGE.ASSET_HAS_ACTIVE_ASSIGNMENTS,
+          'Asset must be in available status to be deleted',
           STATUS_CODE.BAD_REQUEST,
           ERROR_TYPE.VALIDATION_ERROR
         );
       }
 
-      await this.AssetModel.delete(assetId);
+      await this.AssetModel.runTransaction(async (tx) => {
+        await this.AssetEventModel.createInTransaction(tx, {
+          assetId,
+          triggeredBy: triggeredByUserId,
+          eventType: EventType.DELETED,
+          notes: null,
+          metadata: {
+            assetName: existing.name,
+            serialNumber: existing.serialNumber,
+          },
+        });
+
+        await this.AssetModel.softDeleteInTransaction(tx, assetId);
+      });
     } catch (err) {
       if (err.code === 'P2025') {
         throw new APIError(

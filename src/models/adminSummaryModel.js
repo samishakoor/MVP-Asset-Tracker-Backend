@@ -1,13 +1,17 @@
 import prisma from '../config/database.js';
+import { activeAssetFilter, assignmentActiveAssetFilter, supportTicketActiveAssetFilter } from './assetModel.js';
 
 export class AdminSummaryModel {
   async countAssets() {
-    return await prisma.asset.count();
+    return await prisma.asset.count({
+      where: activeAssetFilter,
+    });
   }
 
   async groupAssetsByStatus() {
     return await prisma.asset.groupBy({
       by: ['status'],
+      where: activeAssetFilter,
       _count: {
         _all: true,
       },
@@ -18,6 +22,7 @@ export class AdminSummaryModel {
     return await prisma.supportTicket.count({
       where: {
         status: 'open',
+        ...supportTicketActiveAssetFilter,
       },
     });
   }
@@ -27,6 +32,7 @@ export class AdminSummaryModel {
       by: ['employeeId'],
       where: {
         isActive: true,
+        ...assignmentActiveAssetFilter,
       },
       _count: {
         _all: true,

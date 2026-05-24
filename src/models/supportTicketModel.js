@@ -1,4 +1,5 @@
 import prisma from '../config/database.js';
+import { supportTicketActiveAssetFilter } from './assetModel.js';
 
 const ticketListInclude = {
   assignment: {
@@ -49,6 +50,7 @@ export class SupportTicketModel {
 
   async findAll() {
     return await prisma.supportTicket.findMany({
+      where: supportTicketActiveAssetFilter,
       include: ticketListInclude,
       orderBy: {
         createdAt: 'desc',
@@ -57,8 +59,11 @@ export class SupportTicketModel {
   }
 
   async findById(id) {
-    return await prisma.supportTicket.findUnique({
-      where: { id },
+    return await prisma.supportTicket.findFirst({
+      where: {
+        id,
+        ...supportTicketActiveAssetFilter,
+      },
       include: ticketListInclude,
     });
   }
