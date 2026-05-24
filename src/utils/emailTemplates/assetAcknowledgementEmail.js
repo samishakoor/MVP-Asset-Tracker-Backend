@@ -39,8 +39,8 @@ export function buildAssetAcknowledgementEmailHtml(placeholders) {
               </p>`;
 
   return buildEmailLayoutHtml({
-      pageTitle: 'Asset Acknowledgement',
-    headerTitle: 'Asset Acknowledgement',
+    pageTitle: 'Asset Acknowledgement',
+    headerTitle: 'Asset Acknowledged',
     extraHead: buildAssetDetailsEmailStyles(),
     bodyContent,
   });

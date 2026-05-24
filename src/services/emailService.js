@@ -11,7 +11,7 @@ import {
   JWT_EMAIL_VERIFICATION_TOKEN_EXPIRE_TIME,
   JWT_PASSWORD_RESET_TOKEN_EXPIRE_TIME,
 } from '../config/index.js';
-import { ERROR_MESSAGE, ERROR_TYPE, STATUS_CODE } from '../constants/index.js';
+import { ERROR_MESSAGE, ERROR_TYPE, STATUS_CODE, EMAIL_SUBJECT } from '../constants/index.js';
 import { formatExpireDuration } from '../utils/formatExpireDuration.js';
 import {
   buildAssetAcknowledgementEmailHtml,
@@ -22,7 +22,7 @@ import {
   buildAssetUnderRepairEmailHtml,
   buildAssetTicketResolvedEmailHtml,
   buildAssetReturnedEmailHtml,
-} from '../utils/htmlTemplates/index.js';
+} from '../utils/emailTemplates/index.js';
 
 /**
  * Service for sending transactional emails via Gmail OAuth API.
@@ -118,7 +118,7 @@ export class EmailService {
         resetUrl,
         expiresInLabel: formatExpireDuration(JWT_PASSWORD_RESET_TOKEN_EXPIRE_TIME),
       });
-      await this.sendEmail(email, 'Reset your password', html);
+      await this.sendEmail(email, EMAIL_SUBJECT.PASSWORD_RESET, html);
     } catch (err) {
       logger.error({ errorType: ERROR_TYPE.INTERNAL_ERROR, message: err.message });
       throw new APIError(
@@ -145,7 +145,7 @@ export class EmailService {
         verifyUrl,
         expiresInLabel: formatExpireDuration(JWT_EMAIL_VERIFICATION_TOKEN_EXPIRE_TIME),
       });
-      await this.sendEmail(email, 'Verify your email address', html);
+      await this.sendEmail(email, EMAIL_SUBJECT.EMAIL_VERIFICATION, html);
     } catch (err) {
       logger.error({ errorType: ERROR_TYPE.INTERNAL_ERROR, message: err.message });
       throw new APIError(
@@ -173,8 +173,7 @@ export class EmailService {
         loginUrl,
         assignmentDetails,
       });
-      const subject = `New asset assigned: ${assignmentDetails.name}`;
-      await this.sendEmail(email, subject, html);
+      await this.sendEmail(email, EMAIL_SUBJECT.ASSET_ASSIGNMENT, html);
     } catch (err) {
       logger.error({ errorType: ERROR_TYPE.INTERNAL_ERROR, message: err.message });
       throw new APIError(
@@ -202,8 +201,7 @@ export class EmailService {
         assetDetailUrl,
         acknowledgementDetails,
       });
-      const subject = `${acknowledgementDetails.employeeName} acknowledged: ${acknowledgementDetails.name}`;
-      await this.sendEmail(email, subject, html);
+      await this.sendEmail(email, EMAIL_SUBJECT.ASSET_ACKNOWLEDGEMENT, html);
     } catch (err) {
       logger.error({ errorType: ERROR_TYPE.INTERNAL_ERROR, message: err.message });
       throw new APIError(
@@ -231,8 +229,7 @@ export class EmailService {
         ticketsUrl,
         ticketDetails,
       });
-      const subject = `${ticketDetails.employeeName} flagged an issue: ${ticketDetails.name}`;
-      await this.sendEmail(email, subject, html);
+      await this.sendEmail(email, EMAIL_SUBJECT.SUPPORT_TICKET_REPORTED, html);
     } catch (err) {
       logger.error({ errorType: ERROR_TYPE.INTERNAL_ERROR, message: err.message });
       throw new APIError(
@@ -260,8 +257,7 @@ export class EmailService {
         assetDetailUrl,
         repairDetails,
       });
-      const subject = `${repairDetails.name} is now under repair`;
-      await this.sendEmail(email, subject, html);
+      await this.sendEmail(email, EMAIL_SUBJECT.ASSET_UNDER_REPAIR, html);
     } catch (err) {
       logger.error({ errorType: ERROR_TYPE.INTERNAL_ERROR, message: err.message });
       throw new APIError(
@@ -289,8 +285,7 @@ export class EmailService {
         assetDetailUrl,
         resolutionDetails,
       });
-      const subject = `Issue resolved: ${resolutionDetails.name}`;
-      await this.sendEmail(email, subject, html);
+      await this.sendEmail(email, EMAIL_SUBJECT.ASSET_TICKET_RESOLVED, html);
     } catch (err) {
       logger.error({ errorType: ERROR_TYPE.INTERNAL_ERROR, message: err.message });
       throw new APIError(
@@ -318,8 +313,7 @@ export class EmailService {
         historyUrl,
         returnDetails,
       });
-      const subject = `Asset returned: ${returnDetails.name}`;
-      await this.sendEmail(email, subject, html);
+      await this.sendEmail(email, EMAIL_SUBJECT.ASSET_RETURNED, html);
     } catch (err) {
       logger.error({ errorType: ERROR_TYPE.INTERNAL_ERROR, message: err.message });
       throw new APIError(

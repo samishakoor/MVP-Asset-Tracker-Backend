@@ -53,6 +53,17 @@ export const TokenPurpose = {
   EMAIL_VERIFICATION: 'email_verification',
 };
 
+export const EMAIL_SUBJECT = {
+  PASSWORD_RESET: 'Reset your password',
+  EMAIL_VERIFICATION: 'Verify your email address',
+  ASSET_ASSIGNMENT: 'New Asset Assigned',
+  ASSET_ACKNOWLEDGEMENT: 'Asset Acknowledged',
+  SUPPORT_TICKET_REPORTED: 'Asset Issue Reported',
+  ASSET_UNDER_REPAIR: 'Asset Under Repair',
+  ASSET_TICKET_RESOLVED: 'Asset Issue Resolved',
+  ASSET_RETURNED: 'Asset Returned',
+};
+
 export const SUCCESS_MESSAGE = {
   DB_CONNECTION_SUCCESS: 'Database connected successfully!',
   USERS_FETCHED: 'Users fetched successfully',
