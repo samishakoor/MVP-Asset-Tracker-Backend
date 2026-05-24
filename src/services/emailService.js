@@ -21,6 +21,7 @@ import {
   buildSupportTicketReportedEmailHtml,
   buildAssetUnderRepairEmailHtml,
   buildAssetTicketResolvedEmailHtml,
+  buildAssetReturnedEmailHtml,
 } from '../utils/htmlTemplates/index.js';
 
 /**
@@ -289,6 +290,35 @@ export class EmailService {
         resolutionDetails,
       });
       const subject = `Issue resolved: ${resolutionDetails.name}`;
+      await this.sendEmail(email, subject, html);
+    } catch (err) {
+      logger.error({ errorType: ERROR_TYPE.INTERNAL_ERROR, message: err.message });
+      throw new APIError(
+        ERROR_MESSAGE.EMAIL_SEND_FAILED,
+        STATUS_CODE.INTERNAL_SERVER_ERROR,
+        ERROR_TYPE.INTERNAL_ERROR
+      );
+    }
+  }
+
+  /**
+   * Sends an asset return notification email to the employee.
+   *
+   * @param {string} userName - Employee recipient display name.
+   * @param {string} email - Employee recipient email address.
+   * @param {string} historyUrl - Full employee assignment history URL for the client app.
+   * @param {{ name: string, assetType: string, serialNumber: string, assignedAt: Date|string, returnedAt: Date|string, acknowledgedAt: Date|string|null|undefined, adminName: string }} returnDetails - Return summary.
+   * @returns {Promise<void>}
+   * @throws {APIError}
+   */
+  async sendAssetReturnedEmail(userName, email, historyUrl, returnDetails) {
+    try {
+      const html = buildAssetReturnedEmailHtml({
+        userName,
+        historyUrl,
+        returnDetails,
+      });
+      const subject = `Asset returned: ${returnDetails.name}`;
       await this.sendEmail(email, subject, html);
     } catch (err) {
       logger.error({ errorType: ERROR_TYPE.INTERNAL_ERROR, message: err.message });

@@ -46,3 +46,27 @@ export function formatAssignmentDate(date) {
     day: 'numeric',
   });
 }
+
+/**
+ * Formats the duration between assignment start and return for email copy.
+ *
+ * @param {Date|string} startDate - Assignment start timestamp.
+ * @param {Date|string} endDate - Assignment return timestamp.
+ * @returns {string}
+ */
+export function formatAssignmentDuration(startDate, endDate) {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const diffInMs = end.getTime() - start.getTime();
+  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+  if (diffInDays <= 0) {
+    return 'Same day';
+  }
+
+  if (diffInDays === 1) {
+    return '1 day';
+  }
+
+  return `${diffInDays} days`;
+}

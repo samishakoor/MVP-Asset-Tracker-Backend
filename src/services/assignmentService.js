@@ -1,6 +1,7 @@
 import AssignmentModel from '../models/assignmentModel.js';
 import AssetModel from '../models/assetModel.js';
 import AssetEventModel from '../models/assetEventModel.js';
+import UserModel from '../models/userModel.js';
 import { EmailService } from './emailService.js';
 import APIError from '../utils/APIError.js';
 import logger from '../utils/logger.js';
@@ -22,6 +23,7 @@ export class AssignmentService {
     this.AssignmentModel = new AssignmentModel();
     this.AssetModel = new AssetModel();
     this.AssetEventModel = new AssetEventModel();
+    this.UserModel = new UserModel();
     this.emailService = new EmailService();
   }
 
@@ -319,6 +321,38 @@ export class AssignmentService {
           },
         });
       });
+
+      if (CLIENT_URL && updatedAssignment.employee && updatedAssignment.employee.email) {
+        const returningAdmin = await this.UserModel.findById(adminId);
+
+        if (returningAdmin) {
+          const historyUrl = `${CLIENT_URL}/employee/dashboard/history`;
+
+          try {
+            await this.emailService.sendAssetReturnedEmail(
+              updatedAssignment.employee.name,
+              updatedAssignment.employee.email,
+              historyUrl,
+              {
+                name: updatedAssignment.asset.name,
+                assetType: updatedAssignment.asset.assetType,
+                serialNumber: updatedAssignment.asset.serialNumber,
+                assignedAt: updatedAssignment.assignedAt,
+                returnedAt: updatedAssignment.returnedAt,
+                acknowledgedAt: updatedAssignment.acknowledgedAt,
+                adminName: returningAdmin.name,
+              }
+            );
+          } catch (emailErr) {
+            logger.error({
+              errorType: ERROR_TYPE.INTERNAL_ERROR,
+              message: emailErr.message,
+              assignmentId: updatedAssignment.id,
+              employeeId: updatedAssignment.employeeId,
+            });
+          }
+        }
+      }
 
       return updatedAssignment;
     } catch (err) {

@@ -5,3 +5,4 @@ export { buildAssetAcknowledgementEmailHtml } from './assetAcknowledgementEmail.
 export { buildSupportTicketReportedEmailHtml } from './supportTicketReportedEmail.js';
 export { buildAssetUnderRepairEmailHtml } from './assetUnderRepairEmail.js';
 export { buildAssetTicketResolvedEmailHtml } from './assetTicketResolvedEmail.js';
+export { buildAssetReturnedEmailHtml } from './assetReturnedEmail.js';
