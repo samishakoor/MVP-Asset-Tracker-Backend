@@ -46,21 +46,29 @@ export class NotificationService {
   }
 
   /**
-   * Get notifications for authenticated user
+   * Get notifications for authenticated user with pagination
    * @param {string} userId - User ID
-   * @param {number} limit - Max notifications to return
-   * @param {number} offset - Offset for pagination
-   * @returns {Promise<Object>} Notifications and unread count
+   * @param {number} page - Page number (1-indexed)
+   * @param {number} limit - Notifications per page
+   * @returns {Promise<Object>} Notifications, unread count, and pagination metadata
    * @throws {APIError} If fetch fails
    */
-  async getUserNotifications(userId, limit, offset) {
+  async getUserNotifications(userId, page, limit) {
     try {
-      const notifications = await this.NotificationModel.findByUserId(userId, limit, offset);
+      const skip = (page - 1) * limit;
+      const notifications = await this.NotificationModel.findByUserId(userId, limit, skip);
       const unreadCount = await this.NotificationModel.countUnread(userId);
+      const totalCount = await this.NotificationModel.countByUserId(userId);
 
       return {
         notifications,
         unreadCount,
+        pagination: {
+          page,
+          limit,
+          total: totalCount,
+          total_pages: Math.ceil(totalCount / limit),
+        },
       };
     } catch (err) {
       logger.error({

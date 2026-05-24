@@ -5,6 +5,6 @@ export const notificationIdSchema = Joi.object({
 });
 
 export const getNotificationsSchema = Joi.object({
+  page: Joi.number().integer().min(1).optional(),
   limit: Joi.number().integer().min(1).max(100).optional(),
-  offset: Joi.number().integer().min(0).optional(),
 });

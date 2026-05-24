@@ -47,6 +47,17 @@ class NotificationModel {
   }
 
   /**
+   * Count total notifications for a user
+   * @param {string} userId - User ID
+   * @returns {Promise<number>} Total count of notifications
+   */
+  async countByUserId(userId) {
+    return await prisma.notification.count({
+      where: { userId },
+    });
+  }
+
+  /**
    * Find notification by ID
    * @param {string} id - Notification ID
    * @returns {Promise<Object|null>} Notification or null

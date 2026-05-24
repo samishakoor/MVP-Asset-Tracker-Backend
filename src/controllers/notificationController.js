@@ -22,10 +22,10 @@ export const getNotifications = catchAsync(async (req, res, next) => {
     );
   }
 
-  const limit = validatedQuery.limit ?? 50;
-  const offset = validatedQuery.offset ?? 0;
+  const page = validatedQuery.page ?? 1;
+  const limit = validatedQuery.limit ?? 10;
 
-  const data = await notificationService.getUserNotifications(req.user.id, limit, offset);
+  const data = await notificationService.getUserNotifications(req.user.id, page, limit);
   res.status(STATUS_CODE.OK).json(successWithData(data, SUCCESS_MESSAGE.NOTIFICATIONS_FETCHED));
 });
 
