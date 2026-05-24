@@ -5,6 +5,7 @@ import assetRouter from './assetRoutes.js';
 import assignmentRouter from './assignmentRoutes.js';
 import supportTicketRouter from './supportTicketRoutes.js';
 import adminRouter from './adminRoutes.js';
+import notificationRouter from './notificationRoutes.js';
 
 const router = express.Router();
 
@@ -14,6 +15,7 @@ router.use('/users', userRouter);
 router.use('/assets', assetRouter);
 router.use('/assignments', assignmentRouter);
 router.use('/support-tickets', supportTicketRouter);
+router.use('/notifications', notificationRouter);
 
 // Health check endpoint
 router.get('/ping', (req, res) => {

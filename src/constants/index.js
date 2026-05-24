@@ -45,6 +45,7 @@ export const ERROR_MESSAGE = {
   EMAIL_ALREADY_VERIFIED: 'This email address is already verified',
   EMAIL_NOT_VERIFIED: 'Your email is not verified. Please verify your email before signing in',
   INVALID_VERIFICATION_TOKEN: 'Email verification link is invalid or has expired',
+  NOTIFICATION_NOT_FOUND: 'Notification not found',
 };
 
 export const TokenPurpose = {
@@ -83,6 +84,9 @@ export const SUCCESS_MESSAGE = {
   TICKET_REVIEWED: 'Support ticket reviewed successfully',
   ADMIN_SUMMARY_FETCHED: 'Admin summary fetched successfully',
   ASSET_TYPES_FETCHED: 'Asset types fetched successfully',
+  NOTIFICATIONS_FETCHED: 'Notifications fetched successfully',
+  NOTIFICATION_MARKED_READ: 'Notification marked as read',
+  ALL_NOTIFICATIONS_MARKED_READ: 'All notifications marked as read',
 };
 
 export const UserRole = {
@@ -128,4 +132,13 @@ export const TicketStatus = {
   OPEN: 'open',
   UNDER_REVIEW: 'under_review',
   RESOLVED: 'resolved',
+};
+
+export const NotificationType = {
+  ASSET_ASSIGNED: 'asset_assigned',
+  ASSET_ACKNOWLEDGED: 'asset_acknowledged',
+  TICKET_CREATED: 'ticket_created',
+  ASSET_UNDER_REPAIR: 'asset_under_repair',
+  TICKET_RESOLVED: 'ticket_resolved',
+  ASSET_RETURNED: 'asset_returned',
 };

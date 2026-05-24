@@ -33,15 +33,6 @@ export function buildAssetTicketResolvedEmailHtml(placeholders) {
     'IT has completed work on your support request and your asset is ready to use again.'
   );
 
-  let adminNotesBlock = '';
-  if (placeholders.resolutionDetails.adminNotes) {
-    adminNotesBlock = buildLongTextBlockHtml(
-      placeholders.resolutionDetails.adminNotes,
-      'Resolution notes',
-      'Resolution notes were truncated. View the full update in AssetTrack.'
-    );
-  }
-
   const nextStepsBlock = buildTicketResolvedNextStepsHtml();
 
   const bodyContent = `<p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#475569;">Hi ${placeholders.userName},</p>
@@ -50,7 +41,6 @@ export function buildAssetTicketResolvedEmailHtml(placeholders) {
               </p>
               ${statusCallout}
               ${assetDetailsTable}
-              ${adminNotesBlock}
               ${nextStepsBlock}
               ${buildCtaButtonHtml(placeholders.assetDetailUrl, 'View asset in AssetTrack')}
               ${buildFallbackLinkHtml(placeholders.assetDetailUrl)}

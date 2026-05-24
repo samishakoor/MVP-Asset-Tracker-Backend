@@ -56,13 +56,16 @@ export class AdminSummaryService {
       const users = await this.AdminSummaryModel.findUsersByIds(employeeIds);
 
       const userNameById = {};
+      const userEmailById = {};
       for (const user of users) {
         userNameById[user.id] = user.name;
+        userEmailById[user.id] = user.email;
       }
 
       const assetsPerEmployee = assignmentGroups.map((group) => ({
         employee_id: group.employeeId,
         name: userNameById[group.employeeId] || 'Unknown',
+        email: userEmailById[group.employeeId] || null,
         asset_count: group._count._all,
       }));
 

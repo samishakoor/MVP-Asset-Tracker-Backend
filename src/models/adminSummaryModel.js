@@ -44,6 +44,7 @@ export class AdminSummaryModel {
       select: {
         id: true,
         name: true,
+        email: true,
       },
     });
   }

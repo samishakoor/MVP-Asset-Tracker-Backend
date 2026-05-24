@@ -3,6 +3,7 @@ import AssetModel from '../models/assetModel.js';
 import AssetEventModel from '../models/assetEventModel.js';
 import UserModel from '../models/userModel.js';
 import { EmailService } from './emailService.js';
+import { NotificationService } from './notificationService.js';
 import APIError from '../utils/APIError.js';
 import logger from '../utils/logger.js';
 import { CLIENT_URL } from '../config/index.js';
@@ -13,6 +14,7 @@ import {
   ERROR_MESSAGE,
   AssetStatus,
   EventType,
+  NotificationType,
 } from '../constants/index.js';
 
 /**
@@ -25,6 +27,7 @@ export class AssignmentService {
     this.AssetEventModel = new AssetEventModel();
     this.UserModel = new UserModel();
     this.emailService = new EmailService();
+    this.notificationService = new NotificationService();
   }
 
   /**
@@ -112,6 +115,24 @@ export class AssignmentService {
             employeeId: fullAssignment.employeeId,
           });
         }
+      }
+
+      try {
+        await this.notificationService.createNotification({
+          userId: fullAssignment.employeeId,
+          title: 'New Asset Assigned',
+          message: `${fullAssignment.asset.name} has been assigned to you by ${fullAssignment.assignedByAdmin.name}`,
+          type: NotificationType.ASSET_ASSIGNED,
+          assetId: fullAssignment.assetId,
+          assetName: fullAssignment.asset.name,
+        });
+      } catch (notifErr) {
+        logger.error({
+          errorType: ERROR_TYPE.INTERNAL_ERROR,
+          message: notifErr.message,
+          assignmentId: fullAssignment.id,
+          employeeId: fullAssignment.employeeId,
+        });
       }
 
       return fullAssignment;
@@ -235,6 +256,24 @@ export class AssignmentService {
         }
       }
 
+      try {
+        await this.notificationService.createNotification({
+          userId: updatedAssignment.employeeId,
+          title: 'Asset Acknowledged',
+          message: `You acknowledged ${updatedAssignment.asset.name}`,
+          type: NotificationType.ASSET_ACKNOWLEDGED,
+          assetId: updatedAssignment.assetId,
+          assetName: updatedAssignment.asset.name,
+        });
+      } catch (notifErr) {
+        logger.error({
+          errorType: ERROR_TYPE.INTERNAL_ERROR,
+          message: notifErr.message,
+          assignmentId: updatedAssignment.id,
+          employeeId: updatedAssignment.employeeId,
+        });
+      }
+
       return updatedAssignment;
     } catch (err) {
       logger.error({ errorType: ERROR_TYPE.API_ERROR, message: err.message });
@@ -347,6 +386,24 @@ export class AssignmentService {
             logger.error({
               errorType: ERROR_TYPE.INTERNAL_ERROR,
               message: emailErr.message,
+              assignmentId: updatedAssignment.id,
+              employeeId: updatedAssignment.employeeId,
+            });
+          }
+
+          try {
+            await this.notificationService.createNotification({
+              userId: updatedAssignment.employeeId,
+              title: 'Asset Returned',
+              message: `${updatedAssignment.asset.name} has been returned and processed by ${returningAdmin.name}`,
+              type: NotificationType.ASSET_RETURNED,
+              assetId: updatedAssignment.assetId,
+              assetName: updatedAssignment.asset.name,
+            });
+          } catch (notifErr) {
+            logger.error({
+              errorType: ERROR_TYPE.INTERNAL_ERROR,
+              message: notifErr.message,
               assignmentId: updatedAssignment.id,
               employeeId: updatedAssignment.employeeId,
             });

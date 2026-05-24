@@ -61,6 +61,7 @@ model User {
   reportedTickets       SupportTicket[] @relation("ReportedTickets")
   reviewedTickets       SupportTicket[] @relation("ReviewedTickets")
   triggeredEvents       AssetEvent[]
+  notifications         Notification[]
 
   @@map("users")
 }
@@ -132,4 +133,21 @@ model AssetEvent {
   trigger User  @relation(fields: [triggeredBy], references: [id])
 
   @@map("asset_events")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  title     String
+  message   String
+  type      String
+  assetId   String?  @map("asset_id")
+  assetName String?  @map("asset_name")
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, isRead])
+  @@map("notifications")
 }

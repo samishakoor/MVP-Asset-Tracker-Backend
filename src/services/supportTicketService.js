@@ -3,6 +3,7 @@ import AssignmentModel from '../models/assignmentModel.js';
 import AssetModel from '../models/assetModel.js';
 import AssetEventModel from '../models/assetEventModel.js';
 import { EmailService } from './emailService.js';
+import { NotificationService } from './notificationService.js';
 import APIError from '../utils/APIError.js';
 import logger from '../utils/logger.js';
 import { CLIENT_URL } from '../config/index.js';
@@ -13,6 +14,7 @@ import {
   AssetStatus,
   TicketStatus,
   EventType,
+  NotificationType,
 } from '../constants/index.js';
 
 /**
@@ -25,6 +27,7 @@ export class SupportTicketService {
     this.AssetModel = new AssetModel();
     this.AssetEventModel = new AssetEventModel();
     this.emailService = new EmailService();
+    this.notificationService = new NotificationService();
   }
 
   /**
@@ -130,6 +133,24 @@ export class SupportTicketService {
             adminId: assignment.assignedBy,
           });
         }
+      }
+
+      try {
+        await this.notificationService.createNotification({
+          userId: reportedBy,
+          title: 'Support Ticket Created',
+          message: `You reported an issue for ${assignment.asset.name}`,
+          type: NotificationType.TICKET_CREATED,
+          assetId: assignment.assetId,
+          assetName: assignment.asset.name,
+        });
+      } catch (notifErr) {
+        logger.error({
+          errorType: ERROR_TYPE.INTERNAL_ERROR,
+          message: notifErr.message,
+          ticketId: fullTicket.id,
+          employeeId: reportedBy,
+        });
       }
 
       return fullTicket;
@@ -277,6 +298,26 @@ export class SupportTicketService {
             });
           }
         }
+
+        if (employee && asset && reviewer) {
+          try {
+            await this.notificationService.createNotification({
+              userId: employee.id,
+              title: 'Asset Under Repair',
+              message: `${asset.name} is now under repair`,
+              type: NotificationType.ASSET_UNDER_REPAIR,
+              assetId: asset.id,
+              assetName: asset.name,
+            });
+          } catch (notifErr) {
+            logger.error({
+              errorType: ERROR_TYPE.INTERNAL_ERROR,
+              message: notifErr.message,
+              ticketId: fullTicket.id,
+              employeeId: employee.id,
+            });
+          }
+        }
       }
 
       const isTicketResolvedTransition =
@@ -308,6 +349,26 @@ export class SupportTicketService {
             logger.error({
               errorType: ERROR_TYPE.INTERNAL_ERROR,
               message: emailErr.message,
+              ticketId: fullTicket.id,
+              employeeId: employee.id,
+            });
+          }
+        }
+
+        if (employee && asset && reviewer) {
+          try {
+            await this.notificationService.createNotification({
+              userId: employee.id,
+              title: 'Ticket Resolved',
+              message: `Your support ticket for ${asset.name} has been resolved`,
+              type: NotificationType.TICKET_RESOLVED,
+              assetId: asset.id,
+              assetName: asset.name,
+            });
+          } catch (notifErr) {
+            logger.error({
+              errorType: ERROR_TYPE.INTERNAL_ERROR,
+              message: notifErr.message,
               ticketId: fullTicket.id,
               employeeId: employee.id,
             });
