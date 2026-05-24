@@ -15,6 +15,21 @@ import { ERROR_MESSAGE, ERROR_TYPE, STATUS_CODE } from '../constants/index.js';
 import { formatExpireDuration } from '../utils/formatExpireDuration.js';
 
 /**
+ * Builds a fallback link block when the primary CTA button is unavailable.
+ *
+ * @param {string} actionUrl - Full action URL from the email.
+ * @returns {string} HTML snippet for the fallback link section.
+ */
+function buildFallbackLinkHtml(actionUrl) {
+  return `<p style="margin:0 0 8px;font-size:13px;line-height:1.6;color:#64748b;">
+                If the button above does not work, copy and paste the link below into your browser:
+              </p>
+              <p style="margin:0 0 24px;font-size:13px;line-height:1.6;word-break:break-all;">
+                <a href="${actionUrl}" target="_blank" rel="noopener noreferrer" style="color:#059669;text-decoration:underline;">${actionUrl}</a>
+              </p>`;
+}
+
+/**
  * Service for sending transactional emails via Gmail OAuth API.
  */
 export class EmailService {
@@ -135,6 +150,7 @@ export class EmailService {
                   </td>
                 </tr>
               </table>
+              ${buildFallbackLinkHtml(resetUrl)}
               <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#64748b;">
                 This link expires in ${expiresInLabel}. If you did not request a password reset, you can safely ignore this email.
               </p>
@@ -167,7 +183,7 @@ export class EmailService {
   async sendPasswordResetEmail(userName, email, resetUrl) {
     try {
       const html = this.buildPasswordResetEmailHtml(userName, resetUrl);
-      await this.sendEmail(email, 'Reset your AssetTrack password', html);
+      await this.sendEmail(email, 'Reset your password', html);
     } catch (err) {
       logger.error({ errorType: ERROR_TYPE.INTERNAL_ERROR, message: err.message });
       throw new APIError(
@@ -221,6 +237,7 @@ export class EmailService {
                   </td>
                 </tr>
               </table>
+              ${buildFallbackLinkHtml(verifyUrl)}
               <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#64748b;">
                 This link expires in ${expiresInLabel}. If you did not create an account, you can safely ignore this email.
               </p>
@@ -253,7 +270,7 @@ export class EmailService {
   async sendEmailVerificationEmail(userName, email, verifyUrl) {
     try {
       const html = this.buildEmailVerificationHtml(userName, verifyUrl);
-      await this.sendEmail(email, 'Verify your AssetTrack email address', html);
+      await this.sendEmail(email, 'Verify your email address', html);
     } catch (err) {
       logger.error({ errorType: ERROR_TYPE.INTERNAL_ERROR, message: err.message });
       throw new APIError(
