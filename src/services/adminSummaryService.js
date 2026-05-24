@@ -69,7 +69,7 @@ export class AdminSummaryService {
         asset_count: group._count._all,
       }));
 
-      const recentEventsRaw = await this.AdminSummaryModel.findRecentEvents(10);
+      const recentEventsRaw = await this.AdminSummaryModel.findRecentEvents(5);
 
       const targetEmployeeNameByEventId = await buildTargetEmployeeNameByEventId(
         recentEventsRaw,

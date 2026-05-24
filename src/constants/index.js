@@ -83,6 +83,7 @@ export const SUCCESS_MESSAGE = {
   TICKETS_FETCHED: 'Support tickets fetched successfully',
   TICKET_REVIEWED: 'Support ticket reviewed successfully',
   ADMIN_SUMMARY_FETCHED: 'Admin summary fetched successfully',
+  AUDIT_LOGS_FETCHED: 'Audit logs fetched successfully',
   ASSET_TYPES_FETCHED: 'Asset types fetched successfully',
   NOTIFICATIONS_FETCHED: 'Notifications fetched successfully',
   NOTIFICATION_MARKED_READ: 'Notification marked as read',

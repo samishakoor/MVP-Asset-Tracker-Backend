@@ -70,6 +70,32 @@ export class AdminSummaryModel {
     });
   }
 
+  async findPaginatedEvents(skip, limit) {
+    return await prisma.assetEvent.findMany({
+      skip,
+      take: limit,
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: {
+        asset: {
+          select: {
+            name: true,
+          },
+        },
+        trigger: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+  }
+
+  async countEvents() {
+    return await prisma.assetEvent.count();
+  }
+
   async findAssignmentsByIds(ids) {
     return await prisma.assignment.findMany({
       where: {
