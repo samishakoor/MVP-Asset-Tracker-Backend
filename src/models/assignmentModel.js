@@ -19,6 +19,7 @@ const fullAssignmentInclude = {
       id: true,
       name: true,
       assetType: true,
+      condition: true,
       status: true,
       serialNumber: true,
     },
@@ -34,6 +35,7 @@ const fullAssignmentInclude = {
     select: {
       id: true,
       name: true,
+      email: true,
     },
   },
 };

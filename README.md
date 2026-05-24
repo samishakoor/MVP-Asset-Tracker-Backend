@@ -166,7 +166,7 @@ All routes are prefixed with `/api`.
 | POST | `/assignments` | Admin | Assign asset to employee |
 | PATCH | `/assignments/:id/status` | Admin | Update assignment/asset status |
 | PATCH | `/assignments/:id/return` | Admin | Return asset from employee |
-| PATCH | `/assignments/:id/acknowledge` | Employee | Acknowledge receipt |
+| PATCH | `/assignments/:id/acknowledge` | Employee | Acknowledge asset |
 
 ### Support tickets
 

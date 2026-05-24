@@ -7,6 +7,7 @@ const ticketListInclude = {
         select: {
           id: true,
           name: true,
+          assetType: true,
           serialNumber: true,
         },
       },

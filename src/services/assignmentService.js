@@ -1,8 +1,10 @@
 import AssignmentModel from '../models/assignmentModel.js';
 import AssetModel from '../models/assetModel.js';
 import AssetEventModel from '../models/assetEventModel.js';
+import { EmailService } from './emailService.js';
 import APIError from '../utils/APIError.js';
 import logger from '../utils/logger.js';
+import { CLIENT_URL } from '../config/index.js';
 import { eventTypeFromAssignmentStatus } from '../utils/eventTypeFromAssignmentStatus.js';
 import {
   STATUS_CODE,
@@ -20,6 +22,7 @@ export class AssignmentService {
     this.AssignmentModel = new AssignmentModel();
     this.AssetModel = new AssetModel();
     this.AssetEventModel = new AssetEventModel();
+    this.emailService = new EmailService();
   }
 
   /**
@@ -81,6 +84,34 @@ export class AssignmentService {
       });
 
       const fullAssignment = await this.AssignmentModel.findById(assignment.id);
+
+      if (CLIENT_URL && fullAssignment.employee && fullAssignment.employee.email) {
+        const loginUrl = `${CLIENT_URL}/login`;
+
+        try {
+          await this.emailService.sendAssetAssignmentEmail(
+            fullAssignment.employee.name,
+            fullAssignment.employee.email,
+            loginUrl,
+            {
+              name: fullAssignment.asset.name,
+              assetType: fullAssignment.asset.assetType,
+              serialNumber: fullAssignment.asset.serialNumber,
+              condition: fullAssignment.asset.condition,
+              assignedAt: fullAssignment.assignedAt,
+              assignedByName: fullAssignment.assignedByAdmin.name,
+            }
+          );
+        } catch (emailErr) {
+          logger.error({
+            errorType: ERROR_TYPE.INTERNAL_ERROR,
+            message: emailErr.message,
+            assignmentId: fullAssignment.id,
+            employeeId: fullAssignment.employeeId,
+          });
+        }
+      }
+
       return fullAssignment;
     } catch (err) {
       logger.error({ errorType: ERROR_TYPE.API_ERROR, message: err.message });
@@ -169,11 +200,38 @@ export class AssignmentService {
               select: {
                 id: true,
                 name: true,
+                email: true,
               },
             },
           },
         });
       });
+
+      if (CLIENT_URL && updatedAssignment.assignedByAdmin && updatedAssignment.assignedByAdmin.email) {
+        const assetDetailUrl = `${CLIENT_URL}/admin/assets/${updatedAssignment.asset.id}`;
+
+        try {
+          await this.emailService.sendAssetAcknowledgementEmail(
+            updatedAssignment.assignedByAdmin.name,
+            updatedAssignment.assignedByAdmin.email,
+            assetDetailUrl,
+            {
+              employeeName: updatedAssignment.employee.name,
+              name: updatedAssignment.asset.name,
+              assetType: updatedAssignment.asset.assetType,
+              serialNumber: updatedAssignment.asset.serialNumber,
+              acknowledgedAt: updatedAssignment.acknowledgedAt,
+            }
+          );
+        } catch (emailErr) {
+          logger.error({
+            errorType: ERROR_TYPE.INTERNAL_ERROR,
+            message: emailErr.message,
+            assignmentId: updatedAssignment.id,
+            adminId: updatedAssignment.assignedBy,
+          });
+        }
+      }
 
       return updatedAssignment;
     } catch (err) {
@@ -255,6 +313,7 @@ export class AssignmentService {
               select: {
                 id: true,
                 name: true,
+                email: true,
               },
             },
           },
@@ -341,6 +400,7 @@ export class AssignmentService {
               select: {
                 id: true,
                 name: true,
+                email: true,
               },
             },
           },

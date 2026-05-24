@@ -2,8 +2,10 @@ import SupportTicketModel from '../models/supportTicketModel.js';
 import AssignmentModel from '../models/assignmentModel.js';
 import AssetModel from '../models/assetModel.js';
 import AssetEventModel from '../models/assetEventModel.js';
+import { EmailService } from './emailService.js';
 import APIError from '../utils/APIError.js';
 import logger from '../utils/logger.js';
+import { CLIENT_URL } from '../config/index.js';
 import {
   STATUS_CODE,
   ERROR_TYPE,
@@ -22,6 +24,7 @@ export class SupportTicketService {
     this.AssignmentModel = new AssignmentModel();
     this.AssetModel = new AssetModel();
     this.AssetEventModel = new AssetEventModel();
+    this.emailService = new EmailService();
   }
 
   /**
@@ -97,6 +100,38 @@ export class SupportTicketService {
       });
 
       const fullTicket = await this.SupportTicketModel.findById(ticket.id);
+
+      if (
+        CLIENT_URL &&
+        assignment.assignedByAdmin &&
+        assignment.assignedByAdmin.email &&
+        assignment.employee
+      ) {
+        const ticketsUrl = `${CLIENT_URL}/admin/tickets`;
+
+        try {
+          await this.emailService.sendSupportTicketReportedEmail(
+            assignment.assignedByAdmin.name,
+            assignment.assignedByAdmin.email,
+            ticketsUrl,
+            {
+              employeeName: assignment.employee.name,
+              name: assignment.asset.name,
+              assetType: assignment.asset.assetType,
+              serialNumber: assignment.asset.serialNumber,
+              description,
+            }
+          );
+        } catch (emailErr) {
+          logger.error({
+            errorType: ERROR_TYPE.INTERNAL_ERROR,
+            message: emailErr.message,
+            ticketId: fullTicket.id,
+            adminId: assignment.assignedBy,
+          });
+        }
+      }
+
       return fullTicket;
     } catch (err) {
       logger.error({ errorType: ERROR_TYPE.API_ERROR, message: err.message });
@@ -207,6 +242,79 @@ export class SupportTicketService {
       });
 
       const fullTicket = await this.SupportTicketModel.findById(updatedTicket.id);
+
+      const isFirstUnderRepairTransition =
+        action === 'start_repair' &&
+        ticket.assignment.currentStatus !== AssetStatus.UNDER_REPAIR;
+
+      if (isFirstUnderRepairTransition) {
+        const employee = fullTicket.assignment.employee;
+        const asset = fullTicket.assignment.asset;
+        const reviewer = fullTicket.reviewer;
+
+        if (CLIENT_URL && employee && employee.email && asset && reviewer) {
+          const assetDetailUrl = `${CLIENT_URL}/employee/dashboard/assets/${asset.id}`;
+
+          try {
+            await this.emailService.sendAssetUnderRepairEmail(
+              employee.name,
+              employee.email,
+              assetDetailUrl,
+              {
+                name: asset.name,
+                assetType: asset.assetType,
+                serialNumber: asset.serialNumber,
+                adminName: reviewer.name,
+                adminNotes: notesValue,
+              }
+            );
+          } catch (emailErr) {
+            logger.error({
+              errorType: ERROR_TYPE.INTERNAL_ERROR,
+              message: emailErr.message,
+              ticketId: fullTicket.id,
+              employeeId: employee.id,
+            });
+          }
+        }
+      }
+
+      const isTicketResolvedTransition =
+        action === 'resolve' &&
+        ticket.status !== TicketStatus.RESOLVED;
+
+      if (isTicketResolvedTransition) {
+        const employee = fullTicket.assignment.employee;
+        const asset = fullTicket.assignment.asset;
+        const reviewer = fullTicket.reviewer;
+
+        if (CLIENT_URL && employee && employee.email && asset && reviewer) {
+          const assetDetailUrl = `${CLIENT_URL}/employee/dashboard/assets/${asset.id}`;
+
+          try {
+            await this.emailService.sendAssetTicketResolvedEmail(
+              employee.name,
+              employee.email,
+              assetDetailUrl,
+              {
+                name: asset.name,
+                assetType: asset.assetType,
+                serialNumber: asset.serialNumber,
+                adminName: reviewer.name,
+                adminNotes: notesValue,
+              }
+            );
+          } catch (emailErr) {
+            logger.error({
+              errorType: ERROR_TYPE.INTERNAL_ERROR,
+              message: emailErr.message,
+              ticketId: fullTicket.id,
+              employeeId: employee.id,
+            });
+          }
+        }
+      }
+
       return fullTicket;
     } catch (err) {
       logger.error({ errorType: ERROR_TYPE.API_ERROR, message: err.message });
