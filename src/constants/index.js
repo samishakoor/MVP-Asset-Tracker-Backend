@@ -38,6 +38,8 @@ export const ERROR_MESSAGE = {
   ASSIGNMENT_NOT_OWNED: 'This assignment does not belong to you',
   ASSET_RETURN_NOT_ALLOWED:
     'Asset can only be returned after the employee has acknowledged it',
+  ASSIGNMENT_CANCEL_NOT_ALLOWED:
+    'Only unacknowledged assignments can be cancelled',
   ASSET_NOT_AVAILABLE: 'Asset is not available for assignment',
   TICKET_NOT_FOUND: 'Support ticket not found',
   TICKET_INVALID_ACTION: 'Invalid ticket review action',
@@ -64,6 +66,7 @@ export const EMAIL_SUBJECT = {
   ASSET_UNDER_REPAIR: 'Asset Under Repair',
   ASSET_TICKET_RESOLVED: 'Asset Issue Resolved',
   ASSET_RETURNED: 'Asset Returned',
+  ASSIGNMENT_CANCELLED: 'Asset Assignment Cancelled',
 };
 
 export const SUCCESS_MESSAGE = {
@@ -89,6 +92,7 @@ export const SUCCESS_MESSAGE = {
   ASSIGNMENT_CREATED: 'Asset assigned successfully',
   ASSIGNMENT_ACKNOWLEDGED: 'Asset acknowledged successfully',
   ASSIGNMENT_RETURNED: 'Asset returned successfully',
+  ASSIGNMENT_CANCELLED: 'Assignment cancelled successfully',
   MY_ASSETS_FETCHED: 'Active assignments fetched successfully',
   MY_ASSET_DETAIL_FETCHED: 'Asset detail fetched successfully',
   MY_HISTORY_FETCHED: 'Assignment history fetched successfully',
@@ -141,6 +145,7 @@ export const EventType = {
   REPAIR_STARTED: 'repair_started',
   REPAIR_COMPLETED: 'repair_completed',
   DELETED: 'deleted',
+  ASSIGNMENT_CANCELLED: 'assignment_cancelled',
 };
 
 export const TicketStatus = {
@@ -156,4 +161,5 @@ export const NotificationType = {
   ASSET_UNDER_REPAIR: 'asset_under_repair',
   TICKET_RESOLVED: 'ticket_resolved',
   ASSET_RETURNED: 'asset_returned',
+  ASSIGNMENT_CANCELLED: 'assignment_cancelled',
 };

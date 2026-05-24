@@ -28,6 +28,10 @@ export const returnAssetSchema = Joi.object({
   id: Joi.string().uuid().required(),
 });
 
+export const cancelAssignmentSchema = Joi.object({
+  id: Joi.string().uuid().required(),
+});
+
 export const updateAssignmentStatusSchema = Joi.object({
   currentStatus: Joi.string()
     .valid(...assignmentStatusValues)

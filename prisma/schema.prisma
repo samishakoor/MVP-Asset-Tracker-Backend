@@ -45,6 +45,7 @@ enum EventType {
   repair_started
   repair_completed
   deleted
+  assignment_cancelled
 }
 
 model User {

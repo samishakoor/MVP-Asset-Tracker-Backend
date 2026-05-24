@@ -22,6 +22,7 @@ import {
   buildAssetUnderRepairEmailHtml,
   buildAssetTicketResolvedEmailHtml,
   buildAssetReturnedEmailHtml,
+  buildAssignmentCancelledEmailHtml,
 } from '../utils/emailTemplates/index.js';
 
 /**
@@ -314,6 +315,34 @@ export class EmailService {
         returnDetails,
       });
       await this.sendEmail(email, EMAIL_SUBJECT.ASSET_RETURNED, html);
+    } catch (err) {
+      logger.error({ errorType: ERROR_TYPE.INTERNAL_ERROR, message: err.message });
+      throw new APIError(
+        ERROR_MESSAGE.EMAIL_SEND_FAILED,
+        STATUS_CODE.INTERNAL_SERVER_ERROR,
+        ERROR_TYPE.INTERNAL_ERROR
+      );
+    }
+  }
+
+  /**
+   * Sends an assignment cancellation notification email to the employee.
+   *
+   * @param {string} userName - Employee recipient display name.
+   * @param {string} email - Employee recipient email address.
+   * @param {string} loginUrl - Full login URL for the client app.
+   * @param {{ name: string, assetType: string, serialNumber: string, assignedAt: Date|string, adminName: string }} cancellationDetails - Cancellation summary.
+   * @returns {Promise<void>}
+   * @throws {APIError}
+   */
+  async sendAssignmentCancelledEmail(userName, email, loginUrl, cancellationDetails) {
+    try {
+      const html = buildAssignmentCancelledEmailHtml({
+        userName,
+        loginUrl,
+        cancellationDetails,
+      });
+      await this.sendEmail(email, EMAIL_SUBJECT.ASSIGNMENT_CANCELLED, html);
     } catch (err) {
       logger.error({ errorType: ERROR_TYPE.INTERNAL_ERROR, message: err.message });
       throw new APIError(

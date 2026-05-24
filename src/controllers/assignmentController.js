@@ -9,6 +9,7 @@ import {
   assignmentIdSchema,
   acknowledgeAssetSchema,
   returnAssetSchema,
+  cancelAssignmentSchema,
   updateAssignmentStatusSchema,
 } from '../validators/assignmentSchemas.js';
 
@@ -67,6 +68,24 @@ export const returnAsset = catchAsync(async (req, res, next) => {
 
   const data = await assignmentService.returnAsset(validatedParams.id, req.user.id);
   res.status(STATUS_CODE.OK).json(successWithData(data, SUCCESS_MESSAGE.ASSIGNMENT_RETURNED));
+});
+
+export const cancelAssignment = catchAsync(async (req, res, next) => {
+  const { error: paramError, value: validatedParams } = cancelAssignmentSchema.validate(
+    req.params,
+    {
+      abortEarly: false,
+    }
+  );
+  if (paramError) {
+    logger.error({ errorType: ERROR_TYPE.VALIDATION_ERROR, message: paramError.message });
+    return next(
+      new APIError(paramError.message, STATUS_CODE.BAD_REQUEST, ERROR_TYPE.VALIDATION_ERROR)
+    );
+  }
+
+  const data = await assignmentService.cancelAssignment(validatedParams.id, req.user.id);
+  res.status(STATUS_CODE.OK).json(successWithData(data, SUCCESS_MESSAGE.ASSIGNMENT_CANCELLED));
 });
 
 export const updateAssignmentStatus = catchAsync(async (req, res, next) => {

@@ -108,3 +108,40 @@ export function buildAssetReturnedNextStepsHtml() {
                 </table>
               </div>`;
 }
+
+/**
+ * Builds a status callout for assignment cancellation emails.
+ *
+ * @param {string} statusLabel - Short status label.
+ * @param {string} message - Supporting status message.
+ * @returns {string} HTML snippet for the status callout.
+ */
+export function buildAssignmentCancelledStatusCalloutHtml(statusLabel, message) {
+  return `<div style="margin:0 0 24px;border:1px solid #fcd34d;border-radius:12px;background-color:#fffbeb;padding:16px 20px;">
+                <p style="margin:0 0 6px;font-size:12px;font-weight:700;color:#b45309;letter-spacing:0.04em;text-transform:uppercase;">Current status</p>
+                <p style="margin:0 0 8px;font-size:16px;font-weight:600;color:#92400e;">${statusLabel}</p>
+                <p style="margin:0;font-size:14px;line-height:1.6;color:#78350f;">${message}</p>
+              </div>`;
+}
+
+/**
+ * Builds a "what happens next" guidance block for assignment cancellation emails.
+ *
+ * @returns {string} HTML snippet for next steps guidance.
+ */
+export function buildAssignmentCancelledNextStepsHtml() {
+  return `<div style="margin:0 0 24px;border:1px solid #e2e8f0;border-radius:12px;background-color:#ffffff;padding:16px 20px;">
+                <p style="margin:0 0 12px;font-size:13px;font-weight:700;color:#059669;letter-spacing:0.04em;text-transform:uppercase;">What happens next</p>
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td style="padding:0 0 8px;font-size:14px;line-height:1.6;color:#475569;">&bull; This assignment has been removed from your active gear in AssetTrack.</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:0 0 8px;font-size:14px;line-height:1.6;color:#475569;">&bull; No action is required from you because the asset was not yet acknowledged.</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:0;font-size:14px;line-height:1.6;color:#475569;">&bull; Contact IT if you have questions about this change.</td>
+                  </tr>
+                </table>
+              </div>`;
+}

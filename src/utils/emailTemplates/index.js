@@ -6,3 +6,4 @@ export { buildSupportTicketReportedEmailHtml } from './supportTicketReportedEmai
 export { buildAssetUnderRepairEmailHtml } from './assetUnderRepairEmail.js';
 export { buildAssetTicketResolvedEmailHtml } from './assetTicketResolvedEmail.js';
 export { buildAssetReturnedEmailHtml } from './assetReturnedEmail.js';
+export { buildAssignmentCancelledEmailHtml } from './assignmentCancelledEmail.js';

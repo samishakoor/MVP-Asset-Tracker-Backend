@@ -190,6 +190,15 @@ export class AssignmentModel {
       },
     });
   }
+
+  async cancelInTransaction(tx, id) {
+    return await tx.assignment.update({
+      where: { id },
+      data: {
+        isActive: false,
+      },
+    });
+  }
 }
 
 export default AssignmentModel;

@@ -3,6 +3,7 @@ import {
   assignAsset,
   acknowledgeAsset,
   returnAsset,
+  cancelAssignment,
   updateAssignmentStatus,
 } from '../controllers/assignmentController.js';
 import { authenticateUser } from '../middlewares/authMiddleware.js';
@@ -20,6 +21,12 @@ assignmentRouter.patch(
   updateAssignmentStatus
 );
 assignmentRouter.patch('/:id/return', authenticateUser, requireRoles(UserRole.ADMIN), returnAsset);
+assignmentRouter.patch(
+  '/:id/cancel',
+  authenticateUser,
+  requireRoles(UserRole.ADMIN),
+  cancelAssignment
+);
 
 // Employee routes — acknowledge assignments
 assignmentRouter.patch('/:id/acknowledge', authenticateUser, acknowledgeAsset);

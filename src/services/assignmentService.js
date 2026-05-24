@@ -282,6 +282,150 @@ export class AssignmentService {
   }
 
   /**
+   * Cancels an unacknowledged assignment and returns the asset to available.
+   *
+   * @param {string} assignmentId - Assignment UUID.
+   * @param {string} adminId - Admin UUID.
+   * @returns {Promise<object>} Updated assignment.
+   * @throws {APIError}
+   */
+  async cancelAssignment(assignmentId, adminId) {
+    try {
+      const assignment = await this.AssignmentModel.findActiveById(assignmentId);
+
+      if (!assignment) {
+        throw new APIError(
+          ERROR_MESSAGE.ASSIGNMENT_NOT_FOUND,
+          STATUS_CODE.NOT_FOUND,
+          ERROR_TYPE.NOT_FOUND
+        );
+      }
+
+      if (!assignment.isActive) {
+        throw new APIError(
+          ERROR_MESSAGE.ASSIGNMENT_NOT_ACTIVE,
+          STATUS_CODE.BAD_REQUEST,
+          ERROR_TYPE.API_ERROR
+        );
+      }
+
+      if (
+        assignment.currentStatus !== AssetStatus.ASSIGNED ||
+        assignment.acknowledgedAt !== null
+      ) {
+        throw new APIError(
+          ERROR_MESSAGE.ASSIGNMENT_CANCEL_NOT_ALLOWED,
+          STATUS_CODE.BAD_REQUEST,
+          ERROR_TYPE.VALIDATION_ERROR
+        );
+      }
+
+      const updatedAssignment = await this.AssetModel.runTransaction(async (tx) => {
+        await this.AssignmentModel.cancelInTransaction(tx, assignmentId);
+
+        await this.AssetModel.updateStatusInTransaction(
+          tx,
+          assignment.assetId,
+          AssetStatus.AVAILABLE
+        );
+
+        await this.AssetEventModel.createInTransaction(tx, {
+          assetId: assignment.assetId,
+          triggeredBy: adminId,
+          eventType: EventType.ASSIGNMENT_CANCELLED,
+          notes: null,
+          metadata: {
+            assignmentId,
+            employeeId: assignment.employeeId,
+          },
+        });
+
+        return await tx.assignment.findUnique({
+          where: { id: assignmentId },
+          include: {
+            asset: {
+              select: {
+                id: true,
+                name: true,
+                assetType: true,
+                status: true,
+                serialNumber: true,
+              },
+            },
+            employee: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+            assignedByAdmin: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        });
+      });
+
+      const cancellingAdmin = await this.UserModel.findById(adminId);
+
+      if (cancellingAdmin) {
+        if (CLIENT_URL && updatedAssignment.employee && updatedAssignment.employee.email) {
+          const loginUrl = `${CLIENT_URL}/login`;
+
+          try {
+            await this.emailService.sendAssignmentCancelledEmail(
+              updatedAssignment.employee.name,
+              updatedAssignment.employee.email,
+              loginUrl,
+              {
+                name: updatedAssignment.asset.name,
+                assetType: updatedAssignment.asset.assetType,
+                serialNumber: updatedAssignment.asset.serialNumber,
+                assignedAt: updatedAssignment.assignedAt,
+                adminName: cancellingAdmin.name,
+              }
+            );
+          } catch (emailErr) {
+            logger.error({
+              errorType: ERROR_TYPE.INTERNAL_ERROR,
+              message: emailErr.message,
+              assignmentId: updatedAssignment.id,
+              employeeId: updatedAssignment.employeeId,
+            });
+          }
+        }
+
+        try {
+          await this.notificationService.createNotification({
+            userId: updatedAssignment.employeeId,
+            title: 'Asset Assignment Cancelled',
+            message: `Your assignment for ${updatedAssignment.asset.name} was cancelled by ${cancellingAdmin.name} before you acknowledged it`,
+            type: NotificationType.ASSIGNMENT_CANCELLED,
+            assetId: updatedAssignment.assetId,
+            assetName: updatedAssignment.asset.name,
+          });
+        } catch (notifErr) {
+          logger.error({
+            errorType: ERROR_TYPE.INTERNAL_ERROR,
+            message: notifErr.message,
+            assignmentId: updatedAssignment.id,
+            employeeId: updatedAssignment.employeeId,
+          });
+        }
+      }
+
+      return updatedAssignment;
+    } catch (err) {
+      logger.error({ errorType: ERROR_TYPE.API_ERROR, message: err.message });
+      throw err;
+    }
+  }
+
+  /**
    * Returns an asset, marking assignment as inactive.
    *
    * @param {string} assignmentId - Assignment UUID.
