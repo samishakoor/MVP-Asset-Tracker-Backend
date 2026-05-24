@@ -15,7 +15,7 @@ if (process.env.NODE_ENV && process.env.NODE_ENV !== 'prod') {
 export const PORT = Number(process.env.PORT) || 3000;
 export const NODE_ENV = process.env.NODE_ENV;
 export const JWT_SECRET = process.env.JWT_SECRET;
-export const JWT_ACCESS_TOKEN_EXPIRE_TIME = process.env.JWT_ACCESS_TOKEN_EXPIRE_TIME || '7d';
+export const JWT_ACCESS_TOKEN_EXPIRE_TIME = process.env.JWT_ACCESS_TOKEN_EXPIRE_TIME || '1d';
 export const CLIENT_URL = process.env.CLIENT_URL;
 export const SERVER_URL = process.env.SERVER_URL;
 export const OAUTH_CLIENT_ID = process.env.OAUTH_CLIENT_ID;
@@ -24,6 +24,6 @@ export const OAUTH_REFRESH_TOKEN = process.env.OAUTH_REFRESH_TOKEN;
 export const OAUTH_EMAIL = process.env.OAUTH_EMAIL;
 export const OAUTH_REDIRECT_URI = process.env.OAUTH_REDIRECT_URI;
 export const JWT_PASSWORD_RESET_TOKEN_EXPIRE_TIME =
-  Number(process.env.JWT_PASSWORD_RESET_TOKEN_EXPIRE_TIME) || 60;
+  process.env.JWT_PASSWORD_RESET_TOKEN_EXPIRE_TIME || '1h';
 export const JWT_EMAIL_VERIFICATION_TOKEN_EXPIRE_TIME =
-  Number(process.env.JWT_EMAIL_VERIFICATION_TOKEN_EXPIRE_TIME) || 1440;
+  process.env.JWT_EMAIL_VERIFICATION_TOKEN_EXPIRE_TIME || '1h';

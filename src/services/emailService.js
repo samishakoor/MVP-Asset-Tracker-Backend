@@ -8,10 +8,11 @@ import {
   OAUTH_EMAIL,
   OAUTH_REDIRECT_URI,
   OAUTH_REFRESH_TOKEN,
+  JWT_EMAIL_VERIFICATION_TOKEN_EXPIRE_TIME,
+  JWT_PASSWORD_RESET_TOKEN_EXPIRE_TIME,
 } from '../config/index.js';
 import { ERROR_MESSAGE, ERROR_TYPE, STATUS_CODE } from '../constants/index.js';
-
-const APP_NAME = 'AssetTrack';
+import { formatExpireDuration } from '../utils/formatExpireDuration.js';
 
 /**
  * Service for sending transactional emails via Gmail OAuth API.
@@ -73,7 +74,7 @@ export class EmailService {
     this.assertOAuthConfig();
 
     const mailOptions = {
-      from: `${APP_NAME} <${OAUTH_EMAIL}>`,
+      from: `AssetTrack <${OAUTH_EMAIL}>`,
       to,
       subject,
       html: htmlContent,
@@ -99,6 +100,8 @@ export class EmailService {
    * @returns {string} HTML email content.
    */
   buildPasswordResetEmailHtml(userName, resetUrl) {
+    const expiresInLabel = formatExpireDuration(JWT_PASSWORD_RESET_TOKEN_EXPIRE_TIME);
+
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -133,7 +136,7 @@ export class EmailService {
                 </tr>
               </table>
               <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#64748b;">
-                This link expires in 1 hour. If you did not request a password reset, you can safely ignore this email.
+                This link expires in ${expiresInLabel}. If you did not request a password reset, you can safely ignore this email.
               </p>
             </td>
           </tr>
@@ -183,6 +186,8 @@ export class EmailService {
    * @returns {string} HTML email content.
    */
   buildEmailVerificationHtml(userName, verifyUrl) {
+    const expiresInLabel = formatExpireDuration(JWT_EMAIL_VERIFICATION_TOKEN_EXPIRE_TIME);
+
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -217,7 +222,7 @@ export class EmailService {
                 </tr>
               </table>
               <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#64748b;">
-                This link expires in 24 hours. If you did not create an account, you can safely ignore this email.
+                This link expires in ${expiresInLabel}. If you did not create an account, you can safely ignore this email.
               </p>
             </td>
           </tr>

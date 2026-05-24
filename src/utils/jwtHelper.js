@@ -58,7 +58,7 @@ export function signPasswordResetToken(payload) {
       purpose: TokenPurpose.PASSWORD_RESET,
     },
     JWT_SECRET,
-    { expiresIn: `${JWT_PASSWORD_RESET_TOKEN_EXPIRE_TIME}m` }
+    { expiresIn: JWT_PASSWORD_RESET_TOKEN_EXPIRE_TIME }
   );
 }
 
@@ -104,7 +104,7 @@ export function signEmailVerificationToken(payload) {
       purpose: TokenPurpose.EMAIL_VERIFICATION,
     },
     JWT_SECRET,
-    { expiresIn: `${JWT_EMAIL_VERIFICATION_TOKEN_EXPIRE_TIME}m` }
+    { expiresIn: JWT_EMAIL_VERIFICATION_TOKEN_EXPIRE_TIME }
   );
 }
 
