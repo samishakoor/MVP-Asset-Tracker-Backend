@@ -76,13 +76,11 @@ export class AdminSummaryModel {
     });
   }
 
-  async findPaginatedEvents(skip, limit) {
+  async findPaginatedEvents(skip, limit, orderBy) {
     return await prisma.assetEvent.findMany({
       skip,
       take: limit,
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy,
       include: {
         asset: {
           select: {

@@ -4,15 +4,13 @@ import { STATUS_CODE, ERROR_TYPE, SUCCESS_MESSAGE } from '../constants/index.js'
 import { successWithData, success } from '../utils/response.js';
 import logger from '../utils/logger.js';
 import { NotificationService } from '../services/notificationService.js';
-import {
-  notificationIdSchema,
-  getNotificationsSchema,
-} from '../validators/notificationSchemas.js';
+import { notificationIdSchema } from '../validators/notificationSchemas.js';
+import { notificationsPaginationSchema } from '../validators/paginationSchemas.js';
 
 const notificationService = new NotificationService();
 
 export const getNotifications = catchAsync(async (req, res, next) => {
-  const { error, value: validatedQuery } = getNotificationsSchema.validate(req.query, {
+  const { error, value: validatedQuery } = notificationsPaginationSchema.validate(req.query, {
     abortEarly: false,
   });
   if (error) {
@@ -22,10 +20,7 @@ export const getNotifications = catchAsync(async (req, res, next) => {
     );
   }
 
-  const page = validatedQuery.page ?? 1;
-  const limit = validatedQuery.limit ?? 10;
-
-  const data = await notificationService.getUserNotifications(req.user.id, page, limit);
+  const data = await notificationService.getUserNotifications(req.user.id, validatedQuery);
   res.status(STATUS_CODE.OK).json(successWithData(data, SUCCESS_MESSAGE.NOTIFICATIONS_FETCHED));
 });
 

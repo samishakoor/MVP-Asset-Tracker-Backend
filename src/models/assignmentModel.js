@@ -143,6 +143,34 @@ export class AssignmentModel {
     });
   }
 
+  async findHistoryByEmployeeIdPaginated(employeeId, skip, take, orderBy) {
+    return await prisma.assignment.findMany({
+      where: {
+        employeeId,
+        isActive: false,
+        returnedAt: {
+          not: null,
+        },
+      },
+      include: employeeAssignmentInclude,
+      orderBy,
+      skip,
+      take,
+    });
+  }
+
+  async countHistoryByEmployeeId(employeeId) {
+    return await prisma.assignment.count({
+      where: {
+        employeeId,
+        isActive: false,
+        returnedAt: {
+          not: null,
+        },
+      },
+    });
+  }
+
   async updateAcknowledged(id, acknowledgedAt, currentStatus) {
     return await prisma.assignment.update({
       where: { id },

@@ -11,6 +11,7 @@ import {
   userIdParamSchema,
   assetIdParamForUserSchema,
 } from '../validators/userSchemas.js';
+import { myHistoryPaginationSchema } from '../validators/paginationSchemas.js';
 
 const userService = new UserService();
 const assignmentService = new AssignmentService();
@@ -36,7 +37,18 @@ export const getMyAssetDetail = catchAsync(async (req, res, next) => {
 });
 
 export const getMyHistory = catchAsync(async (req, res, next) => {
-  const data = await assignmentService.getMyHistory(req.user.id);
+  const { error, value: validatedQuery } = myHistoryPaginationSchema.validate(req.query, {
+    abortEarly: false,
+  });
+
+  if (error) {
+    logger.error({ errorType: ERROR_TYPE.VALIDATION_ERROR, message: error.message });
+    return next(
+      new APIError(error.message, STATUS_CODE.BAD_REQUEST, ERROR_TYPE.VALIDATION_ERROR)
+    );
+  }
+
+  const data = await assignmentService.getMyHistory(req.user.id, validatedQuery);
   res.status(STATUS_CODE.OK).json(successWithData(data, SUCCESS_MESSAGE.MY_HISTORY_FETCHED));
 });
 

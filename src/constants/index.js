@@ -50,6 +50,8 @@ export const ERROR_MESSAGE = {
   EMAIL_NOT_VERIFIED: 'Your email is not verified. Please verify your email before signing in',
   INVALID_VERIFICATION_TOKEN: 'Email verification link is invalid or has expired',
   NOTIFICATION_NOT_FOUND: 'Notification not found',
+  INVALID_SORT_FIELD: 'Invalid sort field',
+  INVALID_SORT_ORDER: 'Invalid sort order. Use asc or desc',
 };
 
 export const TokenPurpose = {

@@ -4,6 +4,7 @@ import AssetEventModel from '../models/assetEventModel.js';
 import UserModel from '../models/userModel.js';
 import { EmailService } from './emailService.js';
 import { NotificationService } from './notificationService.js';
+import { PaginationService } from './paginationService.js';
 import APIError from '../utils/APIError.js';
 import logger from '../utils/logger.js';
 import { CLIENT_URL } from '../config/index.js';
@@ -28,6 +29,7 @@ export class AssignmentService {
     this.UserModel = new UserModel();
     this.emailService = new EmailService();
     this.notificationService = new NotificationService();
+    this.PaginationService = new PaginationService();
   }
 
   /**
@@ -743,17 +745,48 @@ export class AssignmentService {
   }
 
   /**
-   * Returns past assignments for an employee.
+   * Returns paginated past assignments for an employee.
    *
    * @param {string} employeeId - Employee UUID.
-   * @returns {Promise<Array>} Past assignments with asset details.
+   * @param {object} query - Validated pagination query.
+   * @returns {Promise<{ history: Array, pagination: object }>}
    * @throws {APIError}
    */
-  async getMyHistory(employeeId) {
+  async getMyHistory(employeeId, query) {
     try {
-      const assignments = await this.AssignmentModel.findHistoryByEmployeeId(employeeId);
+      const historySortFieldMap = {
+        returnedAt: (order) => ({ returnedAt: order }),
+        assignedAt: (order) => ({ assignedAt: order }),
+        assetName: (order) => ({ asset: { name: order } }),
+      };
 
-      return assignments.map((assignment) => ({
+      const paginationConfig = {
+        defaultPage: 1,
+        defaultPerPage: 10,
+        defaultSortBy: 'returnedAt',
+        defaultOrderBy: 'desc',
+        allowedSortFields: ['returnedAt', 'assignedAt', 'assetName'],
+      };
+
+      const resolved = this.PaginationService.resolveQuery(query, paginationConfig);
+      const prismaOrderBy = this.PaginationService.buildPrismaOrderBy(
+        resolved,
+        historySortFieldMap
+      );
+
+      const paginated = await this.PaginationService.paginate(
+        resolved,
+        (params) =>
+          this.AssignmentModel.findHistoryByEmployeeIdPaginated(
+            employeeId,
+            params.skip,
+            params.take,
+            prismaOrderBy
+          ),
+        () => this.AssignmentModel.countHistoryByEmployeeId(employeeId)
+      );
+
+      const history = paginated.items.map((assignment) => ({
         id: assignment.id,
         assetId: assignment.assetId,
         assetName: assignment.asset.name,
@@ -763,6 +796,11 @@ export class AssignmentService {
         assignedAt: assignment.assignedAt,
         returnedAt: assignment.returnedAt,
       }));
+
+      return {
+        history,
+        pagination: paginated.pagination,
+      };
     } catch (err) {
       logger.error({ errorType: ERROR_TYPE.API_ERROR, message: err.message });
       throw err;

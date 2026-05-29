@@ -1,4 +1,5 @@
 import NotificationModel from '../models/notificationModel.js';
+import { PaginationService } from './paginationService.js';
 import APIError from '../utils/APIError.js';
 import logger from '../utils/logger.js';
 import { STATUS_CODE, ERROR_TYPE, ERROR_MESSAGE, NotificationType } from '../constants/index.js';
@@ -10,6 +11,7 @@ import { STATUS_CODE, ERROR_TYPE, ERROR_MESSAGE, NotificationType } from '../con
 export class NotificationService {
   constructor() {
     this.NotificationModel = new NotificationModel();
+    this.PaginationService = new PaginationService();
   }
 
   /**
@@ -48,27 +50,48 @@ export class NotificationService {
   /**
    * Get notifications for authenticated user with pagination
    * @param {string} userId - User ID
-   * @param {number} page - Page number (1-indexed)
-   * @param {number} limit - Notifications per page
+   * @param {object} query - Validated pagination query
    * @returns {Promise<Object>} Notifications, unread count, and pagination metadata
    * @throws {APIError} If fetch fails
    */
-  async getUserNotifications(userId, page, limit) {
+  async getUserNotifications(userId, query) {
     try {
-      const skip = (page - 1) * limit;
-      const notifications = await this.NotificationModel.findByUserId(userId, limit, skip);
+      const notificationsSortFieldMap = {
+        createdAt: (order) => ({ createdAt: order }),
+      };
+
+      const paginationConfig = {
+        defaultPage: 1,
+        defaultPerPage: 10,
+        defaultSortBy: 'createdAt',
+        defaultOrderBy: 'desc',
+        allowedSortFields: ['createdAt'],
+      };
+
+      const resolved = this.PaginationService.resolveQuery(query, paginationConfig);
+      const prismaOrderBy = this.PaginationService.buildPrismaOrderBy(
+        resolved,
+        notificationsSortFieldMap
+      );
+
+      const paginated = await this.PaginationService.paginate(
+        resolved,
+        (params) =>
+          this.NotificationModel.findByUserId(
+            userId,
+            params.take,
+            params.skip,
+            prismaOrderBy
+          ),
+        () => this.NotificationModel.countByUserId(userId)
+      );
+
       const unreadCount = await this.NotificationModel.countUnread(userId);
-      const totalCount = await this.NotificationModel.countByUserId(userId);
 
       return {
-        notifications,
+        notifications: paginated.items,
         unreadCount,
-        pagination: {
-          page,
-          limit,
-          total: totalCount,
-          total_pages: Math.ceil(totalCount / limit),
-        },
+        pagination: paginated.pagination,
       };
     } catch (err) {
       logger.error({

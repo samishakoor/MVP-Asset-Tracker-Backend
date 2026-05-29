@@ -1,7 +1,20 @@
 import AdminSummaryModel from '../models/adminSummaryModel.js';
 import buildTargetEmployeeNameByEventId from '../utils/resolveEventTargetEmployeeNames.js';
+import { PaginationService } from './paginationService.js';
 import logger from '../utils/logger.js';
 import { ERROR_TYPE } from '../constants/index.js';
+
+const AUDIT_LOGS_SORT_FIELD_MAP = {
+  createdAt: (order) => ({ createdAt: order }),
+};
+
+const AUDIT_LOGS_PAGINATION_CONFIG = {
+  defaultPage: 1,
+  defaultPerPage: 20,
+  defaultSortBy: 'createdAt',
+  defaultOrderBy: 'desc',
+  allowedSortFields: ['createdAt'],
+};
 
 /**
  * Service class for fetching audit logs (asset events).
@@ -9,28 +22,40 @@ import { ERROR_TYPE } from '../constants/index.js';
 export class AuditLogsService {
   constructor() {
     this.AdminSummaryModel = new AdminSummaryModel();
+    this.PaginationService = new PaginationService();
   }
 
   /**
    * Returns paginated audit logs with asset and user details.
    *
-   * @param {object} params
-   * @param {number} params.page - Page number (1-indexed)
-   * @param {number} params.limit - Items per page
+   * @param {object} query - Validated pagination query.
    * @returns {Promise<object>}
    * @throws {APIError}
    */
-  async getAuditLogs(params) {
-    const { page, limit } = params;
-
+  async getAuditLogs(query) {
     try {
-      const skip = (page - 1) * limit;
+      const resolved = this.PaginationService.resolveQuery(
+        query,
+        AUDIT_LOGS_PAGINATION_CONFIG
+      );
+      const prismaOrderBy = this.PaginationService.buildPrismaOrderBy(
+        resolved,
+        AUDIT_LOGS_SORT_FIELD_MAP
+      );
 
-      const eventsRaw = await this.AdminSummaryModel.findPaginatedEvents(skip, limit);
-      const totalCount = await this.AdminSummaryModel.countEvents();
+      const paginated = await this.PaginationService.paginate(
+        resolved,
+        (params) =>
+          this.AdminSummaryModel.findPaginatedEvents(
+            params.skip,
+            params.take,
+            prismaOrderBy
+          ),
+        () => this.AdminSummaryModel.countEvents()
+      );
 
       const targetEmployeeNameByEventId = await buildTargetEmployeeNameByEventId(
-        eventsRaw,
+        paginated.items,
         {
           findUsersByIds: (ids) => this.AdminSummaryModel.findUsersByIds(ids),
           findAssignmentsByIds: (ids) => this.AdminSummaryModel.findAssignmentsByIds(ids),
@@ -38,7 +63,7 @@ export class AuditLogsService {
         }
       );
 
-      const events = eventsRaw.map((event) => ({
+      const events = paginated.items.map((event) => ({
         id: event.id,
         asset_id: event.assetId,
         asset_name: event.asset?.name ?? event.metadata?.assetName ?? null,
@@ -53,12 +78,7 @@ export class AuditLogsService {
 
       return {
         events,
-        pagination: {
-          page,
-          limit,
-          total: totalCount,
-          total_pages: Math.ceil(totalCount / limit),
-        },
+        pagination: paginated.pagination,
       };
     } catch (err) {
       logger.error({ errorType: ERROR_TYPE.API_ERROR, message: err.message });

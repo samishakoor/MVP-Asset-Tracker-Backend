@@ -23,10 +23,10 @@ class NotificationModel {
    * @param {number} offset - Number of notifications to skip
    * @returns {Promise<Object[]>} List of notifications
    */
-  async findByUserId(userId, limit, offset) {
+  async findByUserId(userId, limit, offset, orderBy) {
     return await prisma.notification.findMany({
       where: { userId },
-      orderBy: { createdAt: 'desc' },
+      orderBy,
       take: limit,
       skip: offset,
     });

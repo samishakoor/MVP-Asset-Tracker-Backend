@@ -1,20 +1,15 @@
-import Joi from 'joi';
 import catchAsync from '../utils/catchAsync.js';
 import { STATUS_CODE, SUCCESS_MESSAGE, ERROR_TYPE } from '../constants/index.js';
 import { successWithData } from '../utils/response.js';
 import { AuditLogsService } from '../services/auditLogsService.js';
 import APIError from '../utils/APIError.js';
 import logger from '../utils/logger.js';
+import { auditLogsPaginationSchema } from '../validators/paginationSchemas.js';
 
 const auditLogsService = new AuditLogsService();
 
-const auditLogsQuerySchema = Joi.object({
-  page: Joi.number().integer().min(1).default(1),
-  limit: Joi.number().integer().min(1).max(100).default(20),
-});
-
 export const getAuditLogs = catchAsync(async (req, res, next) => {
-  const { error, value: validatedQuery } = auditLogsQuerySchema.validate(req.query, {
+  const { error, value: validatedQuery } = auditLogsPaginationSchema.validate(req.query, {
     abortEarly: false,
   });
 
@@ -26,10 +21,7 @@ export const getAuditLogs = catchAsync(async (req, res, next) => {
     );
   }
 
-  const data = await auditLogsService.getAuditLogs({
-    page: validatedQuery.page,
-    limit: validatedQuery.limit,
-  });
+  const data = await auditLogsService.getAuditLogs(validatedQuery);
 
   res
     .status(STATUS_CODE.OK)
