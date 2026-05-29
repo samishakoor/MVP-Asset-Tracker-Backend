@@ -89,6 +89,30 @@ export class AssetModel {
     });
   }
 
+  async findPaginated(where, skip, take, orderBy) {
+    return await prisma.asset.findMany({
+      where: {
+        ...where,
+        ...activeAssetFilter,
+      },
+      skip,
+      take,
+      orderBy,
+      include: {
+        assignments: activeAssignmentInclude,
+      },
+    });
+  }
+
+  async count(where) {
+    return await prisma.asset.count({
+      where: {
+        ...where,
+        ...activeAssetFilter,
+      },
+    });
+  }
+
   async findById(id) {
     return await prisma.asset.findFirst({
       where: {

@@ -762,7 +762,7 @@ export class AssignmentService {
 
       const paginationConfig = {
         defaultPage: 1,
-        defaultPerPage: 10,
+        defaultPerPage: 15,
         defaultSortBy: 'returnedAt',
         defaultOrderBy: 'desc',
         allowedSortFields: ['returnedAt', 'assignedAt', 'assetName'],

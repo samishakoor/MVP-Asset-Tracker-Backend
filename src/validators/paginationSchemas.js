@@ -46,7 +46,15 @@ export const notificationsPaginationSchema = createPaginationQuerySchema({
 export const myHistoryPaginationSchema = createPaginationQuerySchema({
   allowedSortFields: ['returnedAt', 'assignedAt', 'assetName'],
   defaultPage: 1,
-  defaultPerPage: 10,
+  defaultPerPage: 15,
   defaultSortBy: 'returnedAt',
+  defaultOrderBy: 'desc',
+});
+
+export const assetsPaginationSchema = createPaginationQuerySchema({
+  allowedSortFields: ['createdAt', 'name', 'serialNumber'],
+  defaultPage: 1,
+  defaultPerPage: 8,
+  defaultSortBy: 'createdAt',
   defaultOrderBy: 'desc',
 });

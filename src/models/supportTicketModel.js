@@ -58,6 +58,40 @@ export class SupportTicketModel {
     });
   }
 
+  async findPaginated(where, skip, take, orderBy) {
+    return await prisma.supportTicket.findMany({
+      where: {
+        ...where,
+        ...supportTicketActiveAssetFilter,
+      },
+      skip,
+      take,
+      orderBy,
+      include: ticketListInclude,
+    });
+  }
+
+  async count(where) {
+    return await prisma.supportTicket.count({
+      where: {
+        ...where,
+        ...supportTicketActiveAssetFilter,
+      },
+    });
+  }
+
+  async groupCountByStatus() {
+    const rows = await prisma.supportTicket.groupBy({
+      by: ['status'],
+      where: supportTicketActiveAssetFilter,
+      _count: {
+        _all: true,
+      },
+    });
+
+    return rows;
+  }
+
   async findById(id) {
     return await prisma.supportTicket.findFirst({
       where: {

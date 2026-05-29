@@ -1,4 +1,22 @@
 import Joi from 'joi';
+import { TicketStatus } from '../constants/index.js';
+import { createPaginationQuerySchema } from './paginationSchemas.js';
+
+const ticketStatusValues = Object.values(TicketStatus);
+
+export const getAllTicketsQuerySchema = Joi.object({
+  status: Joi.string()
+    .valid(...ticketStatusValues)
+    .optional(),
+}).concat(
+  createPaginationQuerySchema({
+    allowedSortFields: ['createdAt', 'status'],
+    defaultPage: 1,
+    defaultPerPage: 15,
+    defaultSortBy: 'createdAt',
+    defaultOrderBy: 'desc',
+  })
+);
 
 export const createTicketSchema = Joi.object({
   assignmentId: Joi.string().uuid().required(),

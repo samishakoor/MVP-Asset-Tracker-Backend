@@ -6,10 +6,11 @@ import logger from '../utils/logger.js';
 import { AssetService } from '../services/assetService.js';
 import {
   createAssetSchema,
-  getAllAssetsQuerySchema,
+  getAllAssetsFilterSchema,
   assetIdParamSchema,
   updateAssetSchema,
 } from '../validators/assetSchemas.js';
+import { assetsPaginationSchema } from '../validators/paginationSchemas.js';
 
 const assetService = new AssetService();
 
@@ -29,7 +30,17 @@ export const createAsset = catchAsync(async (req, res, next) => {
 });
 
 export const getAllAssets = catchAsync(async (req, res, next) => {
-  const { error, value: validatedQuery } = getAllAssetsQuerySchema.validate(req.query, {
+  const wantsPagination =
+    req.query.page !== undefined ||
+    req.query.limit !== undefined ||
+    req.query.perPage !== undefined;
+
+  let querySchema = getAllAssetsFilterSchema;
+  if (wantsPagination) {
+    querySchema = getAllAssetsFilterSchema.concat(assetsPaginationSchema);
+  }
+
+  const { error, value: validatedQuery } = querySchema.validate(req.query, {
     abortEarly: false,
   });
   if (error) {
@@ -44,9 +55,15 @@ export const getAllAssets = catchAsync(async (req, res, next) => {
     assetType: validatedQuery.asset_type,
     employeeId: validatedQuery.employee_id,
     hasActiveAssignment: validatedQuery.active_assignment === 'true',
+    search: validatedQuery.search,
   };
 
-  const data = await assetService.getAllAssets(filters);
+  let paginationQuery = null;
+  if (wantsPagination) {
+    paginationQuery = validatedQuery;
+  }
+
+  const data = await assetService.getAllAssets(filters, paginationQuery);
   res.status(STATUS_CODE.OK).json(successWithData(data, SUCCESS_MESSAGE.ASSETS_FETCHED));
 });
 

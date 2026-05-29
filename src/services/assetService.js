@@ -2,6 +2,7 @@ import AssetModel from '../models/assetModel.js';
 import AssetEventModel from '../models/assetEventModel.js';
 import UserModel from '../models/userModel.js';
 import SupportTicketModel from '../models/supportTicketModel.js';
+import { PaginationService } from './paginationService.js';
 import buildTargetEmployeeNameByEventId from '../utils/resolveEventTargetEmployeeNames.js';
 import APIError from '../utils/APIError.js';
 import logger from '../utils/logger.js';
@@ -15,6 +16,20 @@ import {
   DEFAULT_ASSET_TYPES,
 } from '../constants/index.js';
 
+const ASSETS_SORT_FIELD_MAP = {
+  createdAt: (order) => ({ createdAt: order }),
+  name: (order) => ({ name: order }),
+  serialNumber: (order) => ({ serialNumber: order }),
+};
+
+const ASSETS_PAGINATION_CONFIG = {
+  defaultPage: 1,
+  defaultPerPage: 8,
+  defaultSortBy: 'createdAt',
+  defaultOrderBy: 'desc',
+  allowedSortFields: ['createdAt', 'name', 'serialNumber'],
+};
+
 /**
  * Service class for asset inventory and lifecycle operations.
  */
@@ -24,6 +39,7 @@ export class AssetService {
     this.AssetEventModel = new AssetEventModel();
     this.UserModel = new UserModel();
     this.SupportTicketModel = new SupportTicketModel();
+    this.PaginationService = new PaginationService();
   }
 
   /**
@@ -104,6 +120,23 @@ export class AssetService {
           isActive: true,
         },
       };
+    }
+
+    if (filters.search) {
+      where.OR = [
+        {
+          name: {
+            contains: filters.search,
+            mode: 'insensitive',
+          },
+        },
+        {
+          serialNumber: {
+            contains: filters.search,
+            mode: 'insensitive',
+          },
+        },
+      ];
     }
 
     return where;
@@ -226,21 +259,47 @@ export class AssetService {
   /**
    * Returns all assets with optional filters and active assignment summary.
    *
-   * @param {{ status?: string, assetType?: string, employeeId?: string, hasActiveAssignment?: boolean }} filters
-   * @returns {Promise<Array>}
+   * @param {{ status?: string, assetType?: string, employeeId?: string, hasActiveAssignment?: boolean, search?: string }} filters
+   * @param {object|null} paginationQuery - Validated pagination query; when set, returns paginated payload.
+   * @returns {Promise<Array|{ assets: Array, pagination: object }>}
    * @throws {APIError}
    */
-  async getAllAssets(filters) {
+  async getAllAssets(filters, paginationQuery) {
     try {
       const normalizedFilters = {
         status: filters.status,
         employeeId: filters.employeeId,
         assetType: filters.assetType ? this.resolveAssetType(filters.assetType) : undefined,
         hasActiveAssignment: filters.hasActiveAssignment,
+        search: filters.search,
       };
       const where = this.buildListWhereClause(normalizedFilters);
-      const assets = await this.AssetModel.findAll(where);
-      return assets.map((asset) => this.formatListAsset(asset));
+
+      if (paginationQuery === null || paginationQuery === undefined) {
+        const assets = await this.AssetModel.findAll(where);
+        return assets.map((asset) => this.formatListAsset(asset));
+      }
+
+      const resolved = this.PaginationService.resolveQuery(
+        paginationQuery,
+        ASSETS_PAGINATION_CONFIG
+      );
+      const prismaOrderBy = this.PaginationService.buildPrismaOrderBy(
+        resolved,
+        ASSETS_SORT_FIELD_MAP
+      );
+
+      const paginated = await this.PaginationService.paginate(
+        resolved,
+        (params) =>
+          this.AssetModel.findPaginated(where, params.skip, params.take, prismaOrderBy),
+        () => this.AssetModel.count(where)
+      );
+
+      return {
+        assets: paginated.items.map((asset) => this.formatListAsset(asset)),
+        pagination: paginated.pagination,
+      };
     } catch (err) {
       logger.error({ errorType: ERROR_TYPE.API_ERROR, message: err.message });
       throw err;

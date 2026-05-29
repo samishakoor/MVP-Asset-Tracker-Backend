@@ -4,6 +4,7 @@ import AssetModel from '../models/assetModel.js';
 import AssetEventModel from '../models/assetEventModel.js';
 import { EmailService } from './emailService.js';
 import { NotificationService } from './notificationService.js';
+import { PaginationService } from './paginationService.js';
 import APIError from '../utils/APIError.js';
 import logger from '../utils/logger.js';
 import { CLIENT_URL } from '../config/index.js';
@@ -17,6 +18,19 @@ import {
   NotificationType,
 } from '../constants/index.js';
 
+const TICKETS_SORT_FIELD_MAP = {
+  createdAt: (order) => ({ createdAt: order }),
+  status: (order) => ({ status: order }),
+};
+
+const TICKETS_PAGINATION_CONFIG = {
+  defaultPage: 1,
+  defaultPerPage: 15,
+  defaultSortBy: 'createdAt',
+  defaultOrderBy: 'desc',
+  allowedSortFields: ['createdAt', 'status'],
+};
+
 /**
  * Service class for support ticket management operations.
  */
@@ -26,6 +40,7 @@ export class SupportTicketService {
     this.AssignmentModel = new AssignmentModel();
     this.AssetModel = new AssetModel();
     this.AssetEventModel = new AssetEventModel();
+    this.PaginationService = new PaginationService();
     this.emailService = new EmailService();
     this.notificationService = new NotificationService();
   }
@@ -161,15 +176,74 @@ export class SupportTicketService {
   }
 
   /**
-   * Returns all support tickets with asset and employee details.
+   * Builds status count map for admin ticket filter tabs.
    *
-   * @returns {Promise<Array>} All tickets.
+   * @param {Array<{ status: string, _count: { _all: number } }>} groupedRows
+   * @returns {{ all: number, open: number, under_review: number, resolved: number }}
+   */
+  buildStatusCounts(groupedRows) {
+    const counts = {
+      all: 0,
+      open: 0,
+      under_review: 0,
+      resolved: 0,
+    };
+
+    groupedRows.forEach((row) => {
+      const rowCount = row._count._all;
+      counts.all = counts.all + rowCount;
+      if (row.status === TicketStatus.OPEN) {
+        counts.open = rowCount;
+      } else if (row.status === TicketStatus.UNDER_REVIEW) {
+        counts.under_review = rowCount;
+      } else if (row.status === TicketStatus.RESOLVED) {
+        counts.resolved = rowCount;
+      }
+    });
+
+    return counts;
+  }
+
+  /**
+   * Returns paginated support tickets with asset and employee details.
+   *
+   * @param {object} query - Validated pagination and filter query.
+   * @returns {Promise<{ tickets: Array, pagination: object, status_counts: object }>}
    * @throws {APIError}
    */
-  async getAllTickets() {
+  async getAllTickets(query) {
     try {
-      const tickets = await this.SupportTicketModel.findAll();
-      return tickets;
+      const where = {};
+      if (query.status) {
+        where.status = query.status;
+      }
+
+      const resolved = this.PaginationService.resolveQuery(query, TICKETS_PAGINATION_CONFIG);
+      const prismaOrderBy = this.PaginationService.buildPrismaOrderBy(
+        resolved,
+        TICKETS_SORT_FIELD_MAP
+      );
+
+      const [paginated, groupedRows] = await Promise.all([
+        this.PaginationService.paginate(
+          resolved,
+          (params) =>
+            this.SupportTicketModel.findPaginated(
+              where,
+              params.skip,
+              params.take,
+              prismaOrderBy
+            ),
+          () => this.SupportTicketModel.count(where)
+        ),
+        this.SupportTicketModel.groupCountByStatus(),
+      ]);
+
+      return {
+        tickets: paginated.items,
+        pagination: paginated.pagination,
+        status_counts: this.buildStatusCounts(groupedRows),
+      };
     } catch (err) {
       logger.error({ errorType: ERROR_TYPE.API_ERROR, message: err.message });
       throw err;
