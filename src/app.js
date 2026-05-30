@@ -2,7 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
+import swaggerUi from 'swagger-ui-express';
 import { CLIENT_URL, NODE_ENV } from './config/index.js';
+import { swaggerSpec } from './config/swagger.js';
 import routes from './routes/index.js';
 import errorHandler from './middlewares/errorHandler.js';
 import notFound from './middlewares/notFound.js';
@@ -88,6 +90,12 @@ app.use(compression());
 // Body parsing middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Swagger API Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Asset Tracker API Docs',
+}));
 
 // API routes
 app.use('/api', routes);

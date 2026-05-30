@@ -103,6 +103,21 @@ After `npm run prisma:seed`:
 | Studio | `npm run prisma:studio` | Database GUI |
 | Seed | `npm run prisma:seed` | Insert default users |
 
+## API Documentation
+
+**Interactive API documentation is available via Swagger UI:**
+
+```
+http://localhost:3000/api-docs
+```
+
+The Swagger UI provides:
+- Complete list of all API endpoints
+- Interactive testing interface
+- Request/response schemas
+- Authentication flow
+- Example requests and responses
+
 ## Authentication
 
 Protected routes use `Authorization: Bearer <token>` from login/signup.
