@@ -1,8 +1,9 @@
 import catchAsync from '../utils/catchAsync.js';
 import APIError from '../utils/APIError.js';
-import { STATUS_CODE, ERROR_TYPE, SUCCESS_MESSAGE } from '../constants/index.js';
+import { STATUS_CODE, ERROR_TYPE, ERROR_MESSAGE, SUCCESS_MESSAGE } from '../constants/index.js';
 import { success, successWithData } from '../utils/response.js';
 import logger from '../utils/logger.js';
+import { CLIENT_URL } from '../config/index.js';
 import { AuthService } from '../services/authService.js';
 import {
   signupSchema,
@@ -103,4 +104,22 @@ export const verifyEmail = catchAsync(async (req, res, next) => {
 
   await authService.verifyEmail(validatedBody);
   res.status(STATUS_CODE.OK).json(success(SUCCESS_MESSAGE.EMAIL_VERIFIED_SUCCESS));
+});
+
+
+export const googleAuthCallback = catchAsync(async (req, res, next) => {
+  if (!CLIENT_URL) {
+    return next(
+      new APIError(
+        ERROR_MESSAGE.GOOGLE_AUTH_FAILED,
+        STATUS_CODE.INTERNAL_SERVER_ERROR,
+        ERROR_TYPE.INTERNAL_ERROR
+      )
+    );
+  }
+
+  const data = await authService.loginWithGoogle(req.user);
+  const redirectUrl = new URL('/login', CLIENT_URL);
+  redirectUrl.searchParams.set('token', data.token);
+  res.redirect(redirectUrl.toString());
 });

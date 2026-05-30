@@ -5,6 +5,7 @@ import compression from 'compression';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger.js';
 import { CLIENT_URL } from './config/index.js';
+import passport from './middlewares/googleOAuth.js';
 import routes from './routes/index.js';
 import errorHandler from './middlewares/errorHandler.js';
 import notFound from './middlewares/notFound.js';
@@ -41,6 +42,8 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   customCss: '.swagger-ui .topbar { display: none }',
   customSiteTitle: 'Asset Tracker API Docs',
 }));
+
+app.use(passport.initialize());
 
 // API routes
 app.use('/api', routes);

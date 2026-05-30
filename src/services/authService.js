@@ -130,6 +130,48 @@ export class AuthService {
   }
 
   /**
+   * Issues a JWT for a user authenticated via Google OAuth.
+   *
+   * @param {object} user - Passport-authenticated user record.
+   * @returns {Promise<{ user: object, token: string }>}
+   * @throws {APIError}
+   */
+  async loginWithGoogle(user) {
+    try {
+      if (!user || !user.id) {
+        throw new APIError(
+          ERROR_MESSAGE.INVALID_CREDENTIALS,
+          STATUS_CODE.UNAUTHORIZED,
+          ERROR_TYPE.AUTHENTICATION_ERROR
+        );
+      }
+
+      const existingUser = await this.UserModel.findById(user.id);
+
+      if (!existingUser) {
+        throw new APIError(
+          ERROR_MESSAGE.USER_NOT_FOUND,
+          STATUS_CODE.NOT_FOUND,
+          ERROR_TYPE.NOT_FOUND
+        );
+      }
+
+      if (!existingUser.isVerified) {
+        throw new APIError(
+          ERROR_MESSAGE.EMAIL_NOT_VERIFIED,
+          STATUS_CODE.FORBIDDEN,
+          ERROR_TYPE.AUTHENTICATION_ERROR
+        );
+      }
+
+      return this.buildAuthResponse(existingUser);
+    } catch (err) {
+      logger.error({ errorType: ERROR_TYPE.API_ERROR, message: err.message });
+      throw err;
+    }
+  }
+
+  /**
    * Sends a verification email to an existing unverified user record.
    *
    * @param {object} user - Prisma user record.

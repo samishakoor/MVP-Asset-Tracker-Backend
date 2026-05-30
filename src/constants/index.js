@@ -49,6 +49,7 @@ export const ERROR_MESSAGE = {
   EMAIL_ALREADY_VERIFIED: 'This email address is already verified',
   EMAIL_NOT_VERIFIED: 'Your email is not verified. Please verify your email before signing in',
   INVALID_VERIFICATION_TOKEN: 'Email verification link is invalid or has expired',
+  GOOGLE_AUTH_FAILED: 'Google sign-in failed. Please try again',
   NOTIFICATION_NOT_FOUND: 'Notification not found',
   INVALID_SORT_FIELD: 'Invalid sort field',
   INVALID_SORT_ORDER: 'Invalid sort order. Use asc or desc',

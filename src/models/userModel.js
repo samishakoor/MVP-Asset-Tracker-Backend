@@ -30,6 +30,20 @@ export class UserModel {
     });
   }
 
+  async findByGoogleId(googleId) {
+    return await prisma.user.findFirst({
+      where: { googleId },
+    });
+  }
+
+  async updateGoogleId(id, googleId) {
+    return await prisma.user.update({
+      where: { id },
+      data: { googleId },
+      select: userPublicSelect,
+    });
+  }
+
   async create(data) {
     return await prisma.user.create({
       data,
