@@ -80,7 +80,7 @@ export class PaginationService {
    * @param {number} page
    * @param {number} perPage
    * @param {number} total
-   * @returns {{ page: number, limit: number, per_page: number, total: number, total_pages: number }}
+   * @returns {{ page: number, limit: number, per_page: number, total_records: number, total_pages: number }}
    */
   buildMeta(page, perPage, total) {
     const totalPages = total === 0 ? 0 : Math.ceil(total / perPage);
@@ -89,7 +89,7 @@ export class PaginationService {
       page,
       limit: perPage,
       per_page: perPage,
-      total,
+      total_records: total,
       total_pages: totalPages,
     };
   }
