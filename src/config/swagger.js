@@ -2,7 +2,7 @@ import { SERVER_URL } from './index.js';
 
 /**
  * Swagger/OpenAPI configuration for Asset Tracker API
- * All path definitions are centralized here
+ * All path definitions are centralized 
  */
 
 export const swaggerSpec = {
