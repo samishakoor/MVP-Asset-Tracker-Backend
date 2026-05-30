@@ -12,7 +12,7 @@ export const getAllTicketsQuerySchema = Joi.object({
   createPaginationQuerySchema({
     allowedSortFields: ['createdAt', 'status'],
     defaultPage: 1,
-    defaultPerPage: 15,
+    defaultPerPage: 9,
     defaultSortBy: 'createdAt',
     defaultOrderBy: 'desc',
   })

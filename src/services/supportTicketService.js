@@ -25,7 +25,7 @@ const TICKETS_SORT_FIELD_MAP = {
 
 const TICKETS_PAGINATION_CONFIG = {
   defaultPage: 1,
-  defaultPerPage: 15,
+  defaultPerPage: 9,
   defaultSortBy: 'createdAt',
   defaultOrderBy: 'desc',
   allowedSortFields: ['createdAt', 'status'],

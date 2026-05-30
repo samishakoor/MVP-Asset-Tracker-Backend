@@ -9,15 +9,28 @@ import notificationRouter from './notificationRoutes.js';
 
 const router = express.Router();
 
+// Mount: /api/auth — authentication (public routes)
 router.use('/auth', authRouter);
+
+// Mount: /api/admin — admin dashboard and audit logs (private, admin)
 router.use('/admin', adminRouter);
+
+// Mount: /api/users — employee self-service and admin user management
 router.use('/users', userRouter);
+
+// Mount: /api/assets — asset inventory (private, admin)
 router.use('/assets', assetRouter);
+
+// Mount: /api/assignments — assign, return, and acknowledge assets
 router.use('/assignments', assignmentRouter);
+
+// Mount: /api/support-tickets — employee tickets and admin review
 router.use('/support-tickets', supportTicketRouter);
+
+// Mount: /api/notifications — employee notification inbox
 router.use('/notifications', notificationRouter);
 
-// Health check endpoint
+// Public — API health check
 router.get('/ping', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'pong' });
 });

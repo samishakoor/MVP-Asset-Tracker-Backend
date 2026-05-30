@@ -15,16 +15,28 @@ import { UserRole } from '../constants/index.js';
 
 const userRouter = express.Router();
 
-// Employee routes — fetch own assignments
+// Private (Employee) — List active asset assignments for the logged-in employee
 userRouter.get('/me/assets', authenticateUser, getMyAssets);
+
+// Private (Employee) — Get detail for one assigned asset by asset id
 userRouter.get('/me/assets/:assetId', authenticateUser, getMyAssetDetail);
+
+// Private (Employee) — Get paginated history of returned assignments
 userRouter.get('/me/history', authenticateUser, getMyHistory);
 
-// Admin routes — user management
+// Private (Admin) — Create a new user account
 userRouter.post('/', authenticateUser, requireRoles(UserRole.ADMIN), createUser);
+
+// Private (Admin) — List all users
 userRouter.get('/', authenticateUser, requireRoles(UserRole.ADMIN), getAllUsers);
+
+// Private (Admin) — Get a single user by id
 userRouter.get('/:id', authenticateUser, requireRoles(UserRole.ADMIN), getUserById);
+
+// Private (Admin) — Update a user by id
 userRouter.put('/:id', authenticateUser, requireRoles(UserRole.ADMIN), updateUser);
+
+// Private (Admin) — Delete a user by id
 userRouter.delete('/:id', authenticateUser, requireRoles(UserRole.ADMIN), deleteUser);
 
 export default userRouter;

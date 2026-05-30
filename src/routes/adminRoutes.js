@@ -7,7 +7,7 @@ import { UserRole } from '../constants/index.js';
 
 const adminRouter = express.Router();
 
-// Protected routes — admin only
+// Private (Admin) — Get dashboard summary counts and recent activity
 adminRouter.get(
   '/summary',
   authenticateUser,
@@ -15,6 +15,7 @@ adminRouter.get(
   getAdminSummary
 );
 
+// Private (Admin) — Get paginated audit log events
 adminRouter.get(
   '/audit-logs',
   authenticateUser,

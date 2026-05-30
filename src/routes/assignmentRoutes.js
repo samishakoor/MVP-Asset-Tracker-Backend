@@ -12,15 +12,21 @@ import { UserRole } from '../constants/index.js';
 
 const assignmentRouter = express.Router();
 
-// Admin routes — assign, return, and update assignment status
+// Private (Admin) — Assign an available asset to an employee
 assignmentRouter.post('/', authenticateUser, requireRoles(UserRole.ADMIN), assignAsset);
+
+// Private (Admin) — Update assignment workflow status by assignment id
 assignmentRouter.patch(
   '/:id/status',
   authenticateUser,
   requireRoles(UserRole.ADMIN),
   updateAssignmentStatus
 );
+
+// Private (Admin) — Mark an assignment as returned by assignment id
 assignmentRouter.patch('/:id/return', authenticateUser, requireRoles(UserRole.ADMIN), returnAsset);
+
+// Private (Admin) — Cancel an unacknowledged assignment by assignment id
 assignmentRouter.patch(
   '/:id/cancel',
   authenticateUser,
@@ -28,7 +34,7 @@ assignmentRouter.patch(
   cancelAssignment
 );
 
-// Employee routes — acknowledge assignments
+// Private (Employee) — Acknowledge receipt of an assigned asset by assignment id
 assignmentRouter.patch('/:id/acknowledge', authenticateUser, acknowledgeAsset);
 
 export default assignmentRouter;
