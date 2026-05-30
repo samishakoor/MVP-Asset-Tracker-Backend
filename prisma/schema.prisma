@@ -65,6 +65,7 @@ model User {
   triggeredEvents       AssetEvent[]
   notifications         Notification[]
 
+  @@index([role])
   @@map("users")
 }
 
@@ -83,6 +84,11 @@ model Asset {
   assignments Assignment[]
   events      AssetEvent[]
 
+  @@index([isDeleted])
+  @@index([isDeleted, status])
+  @@index([isDeleted, assetType])
+  @@index([isDeleted, createdAt(sort: Desc)])
+  @@index([serialNumber])
   @@map("assets")
 }
 
@@ -102,6 +108,10 @@ model Assignment {
   assignedByAdmin User            @relation("AdminAssignments", fields: [assignedBy], references: [id])
   supportTickets  SupportTicket[]
 
+  @@index([employeeId, isActive])
+  @@index([assetId, isActive])
+  @@index([employeeId, isActive, returnedAt(sort: Desc)])
+  @@index([isActive, assignedAt(sort: Desc)])
   @@map("assignments")
 }
 
@@ -120,6 +130,11 @@ model SupportTicket {
   reporter   User       @relation("ReportedTickets", fields: [reportedBy], references: [id])
   reviewer   User?      @relation("ReviewedTickets", fields: [reviewedBy], references: [id])
 
+  @@index([status])
+  @@index([status, createdAt(sort: Desc)])
+  @@index([assignmentId])
+  @@index([reportedBy])
+  @@index([createdAt(sort: Desc)])
   @@map("support_tickets")
 }
 
@@ -135,6 +150,10 @@ model AssetEvent {
   asset   Asset? @relation(fields: [assetId], references: [id])
   trigger User   @relation(fields: [triggeredBy], references: [id])
 
+  @@index([assetId])
+  @@index([assetId, createdAt(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+  @@index([eventType])
   @@map("asset_events")
 }
 
@@ -152,5 +171,6 @@ model Notification {
   user User @relation(fields: [userId], references: [id])
 
   @@index([userId, isRead])
+  @@index([userId, createdAt(sort: Desc)])
   @@map("notifications")
 }

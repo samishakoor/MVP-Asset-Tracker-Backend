@@ -3,7 +3,7 @@
 builder = "RAILPACK"
 
 [deploy]
-# Sync schema to Postgres before the API listens (uses DATABASE_URL at runtime)
+# Start runs prisma db push (schema + indexes from schema.prisma), then the API
 startCommand = "npm run start"
 healthcheckPath = "/api/ping"
 healthcheckTimeout = 300
