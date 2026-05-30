@@ -4,6 +4,12 @@ import { verifyToken } from '../utils/jwtHelper.js';
 import logger from '../utils/logger.js';
 import { STATUS_CODE, ERROR_TYPE, ERROR_MESSAGE } from '../constants/index.js';
 
+/**
+ * Reads Bearer JWT from Authorization, verifies it, and sets req.user from the token payload.
+ * Use on private routes before requireRoles or the controller.
+ *
+ * @type {import('express').RequestHandler}
+ */
 export const authenticateUser = catchAsync(async (req, res, next) => {
   let token;
   const authHeader = req.headers.authorization;
