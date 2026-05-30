@@ -11,7 +11,7 @@ import { UserRole } from '../constants/index.js';
 const supportTicketRouter = express.Router();
 
 // Private (Employee) — Report an issue on an active assignment
-supportTicketRouter.post('/', authenticateUser, createTicket);
+supportTicketRouter.post('/', authenticateUser, requireRoles(UserRole.EMPLOYEE), createTicket);
 
 // Private (Admin) — List support tickets with pagination and optional status filter
 supportTicketRouter.get('/', authenticateUser, requireRoles(UserRole.ADMIN), getAllTickets);

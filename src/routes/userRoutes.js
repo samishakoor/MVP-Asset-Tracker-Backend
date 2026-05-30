@@ -16,13 +16,13 @@ import { UserRole } from '../constants/index.js';
 const userRouter = express.Router();
 
 // Private (Employee) — List active asset assignments for the logged-in employee
-userRouter.get('/me/assets', authenticateUser, getMyAssets);
+userRouter.get('/me/assets', authenticateUser, requireRoles(UserRole.EMPLOYEE), getMyAssets);
 
 // Private (Employee) — Get detail for one assigned asset by asset id
-userRouter.get('/me/assets/:assetId', authenticateUser, getMyAssetDetail);
+userRouter.get('/me/assets/:assetId', authenticateUser, requireRoles(UserRole.EMPLOYEE), getMyAssetDetail);
 
 // Private (Employee) — Get paginated history of returned assignments
-userRouter.get('/me/history', authenticateUser, getMyHistory);
+userRouter.get('/me/history', authenticateUser, requireRoles(UserRole.EMPLOYEE), getMyHistory);
 
 // Private (Admin) — Create a new user account
 userRouter.post('/', authenticateUser, requireRoles(UserRole.ADMIN), createUser);

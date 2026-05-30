@@ -35,6 +35,6 @@ assignmentRouter.patch(
 );
 
 // Private (Employee) — Acknowledge receipt of an assigned asset by assignment id
-assignmentRouter.patch('/:id/acknowledge', authenticateUser, acknowledgeAsset);
+assignmentRouter.patch('/:id/acknowledge', authenticateUser, requireRoles(UserRole.EMPLOYEE),acknowledgeAsset);
 
 export default assignmentRouter;
