@@ -522,7 +522,7 @@ export class AssignmentService {
         const returningAdmin = await this.UserModel.findById(adminId);
 
         if (returningAdmin) {
-          const historyUrl = `${CLIENT_URL}/employee/dashboard/history`;
+          const historyUrl = `${CLIENT_URL}/employee/history`;
 
           try {
             await this.emailService.sendAssetReturnedEmail(

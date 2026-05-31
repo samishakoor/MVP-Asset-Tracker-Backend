@@ -348,7 +348,7 @@ export class SupportTicketService {
         const reviewer = fullTicket.reviewer;
 
         if (CLIENT_URL && employee && employee.email && asset && reviewer) {
-          const assetDetailUrl = `${CLIENT_URL}/employee/dashboard/assets/${asset.id}`;
+          const assetDetailUrl = `${CLIENT_URL}/employee/assets/${asset.id}`;
 
           try {
             await this.emailService.sendAssetUnderRepairEmail(
@@ -404,7 +404,7 @@ export class SupportTicketService {
         const reviewer = fullTicket.reviewer;
 
         if (CLIENT_URL && employee && employee.email && asset && reviewer) {
-          const assetDetailUrl = `${CLIENT_URL}/employee/dashboard/assets/${asset.id}`;
+          const assetDetailUrl = `${CLIENT_URL}/employee/assets/${asset.id}`;
 
           try {
             await this.emailService.sendAssetTicketResolvedEmail(
