@@ -9,8 +9,6 @@ import {
   GOOGLE_OAUTH_CALLBACK_URL,
 } from '../config/index.js';
 
-const userModel = new UserModel();
-
 /**
  * Builds a display name from a Google OAuth profile.
  *
@@ -42,6 +40,7 @@ function buildNameFromGoogleProfile(profile) {
 async function resolveGoogleUser(profile) {
   const googleId = profile.id;
 
+  const userModel = new UserModel();
   const existingGoogleUser = await userModel.findByGoogleId(googleId);
 
   if (existingGoogleUser) {
@@ -92,18 +91,5 @@ passport.use(
     }
   )
 );
-
-passport.serializeUser(function (user, done) {
-  done(null, user.id);
-});
-
-passport.deserializeUser(async function (id, done) {
-  try {
-    const user = await userModel.findById(id);
-    done(null, user);
-  } catch (err) {
-    done(err, null);
-  }
-});
 
 export default passport;
