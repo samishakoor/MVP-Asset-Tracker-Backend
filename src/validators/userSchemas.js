@@ -17,6 +17,10 @@ export const updateUserSchema = Joi.object({
   name: Joi.string().trim().min(1).max(255).optional(),
 }).min(1);
 
+export const updateMyProfileSchema = Joi.object({
+  name: Joi.string().trim().min(1).max(255).required(),
+});
+
 export const userIdParamSchema = Joi.object({
   id: Joi.string().uuid().required(),
 });

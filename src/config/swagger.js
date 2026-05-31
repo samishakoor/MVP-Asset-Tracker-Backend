@@ -1389,7 +1389,77 @@ export const swaggerSpec = {
         },
       },
     },
-  
+
+    '/users/me/profile': {
+      get: {
+        tags: ['Users'],
+        summary: 'Get the logged-in user profile',
+        description: 'Private (Employee) — Retrieve name, email, and role for the logged-in employee',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: {
+            description: 'Profile retrieved successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean', example: true },
+                    message: { type: 'string', example: 'Profile fetched successfully' },
+                    data: { $ref: '#/components/schemas/User' },
+                  },
+                },
+              },
+            },
+          },
+          401: { description: 'Unauthorized' },
+          403: { description: 'Forbidden - Employee role required' },
+          404: { description: 'User not found' },
+        },
+      },
+      patch: {
+        tags: ['Users'],
+        summary: 'Update the logged-in user profile',
+        description: 'Private (Employee) — Update display name; email cannot be changed',
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['name'],
+                properties: {
+                  name: { type: 'string', minLength: 1, maxLength: 255, example: 'Jane Smith' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Profile updated successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean', example: true },
+                    message: { type: 'string', example: 'Profile updated successfully' },
+                    data: { $ref: '#/components/schemas/User' },
+                  },
+                },
+              },
+            },
+          },
+          400: { description: 'Validation error' },
+          401: { description: 'Unauthorized' },
+          403: { description: 'Forbidden - Employee role required' },
+          404: { description: 'User not found' },
+        },
+      },
+    },
+
     '/users': {
       post: {
         tags: ['Users'],

@@ -121,6 +121,56 @@ export class UserService {
   }
 
   /**
+   * Returns the authenticated user's profile.
+   *
+   * @param {string} userId - Authenticated user UUID.
+   * @returns {Promise<object>}
+   * @throws {APIError}
+   */
+  async getMyProfile(userId) {
+    try {
+      const user = await this.UserModel.findById(userId);
+
+      if (!user) {
+        throw new APIError(
+          ERROR_MESSAGE.USER_NOT_FOUND,
+          STATUS_CODE.NOT_FOUND,
+          ERROR_TYPE.API_ERROR
+        );
+      }
+
+      return user;
+    } catch (err) {
+      logger.error({ errorType: ERROR_TYPE.API_ERROR, message: err.message });
+      throw err;
+    }
+  }
+
+  /**
+   * Updates the authenticated user's profile (name only).
+   *
+   * @param {string} userId - Authenticated user UUID.
+   * @param {{ name: string }} userData - Validated profile update payload.
+   * @returns {Promise<object>}
+   * @throws {APIError}
+   */
+  async updateMyProfile(userId, userData) {
+    try {
+      return await this.UserModel.update(userId, { name: userData.name });
+    } catch (err) {
+      if (err.code === 'P2025') {
+        throw new APIError(
+          ERROR_MESSAGE.USER_NOT_FOUND,
+          STATUS_CODE.NOT_FOUND,
+          ERROR_TYPE.API_ERROR
+        );
+      }
+      logger.error({ errorType: ERROR_TYPE.API_ERROR, message: err.message });
+      throw err;
+    }
+  }
+
+  /**
    * Deletes a user by id.
    *
    * @param {string} id - User UUID.

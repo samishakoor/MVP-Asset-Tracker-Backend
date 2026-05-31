@@ -3,6 +3,8 @@ import {
   getMyAssets,
   getMyAssetDetail,
   getMyHistory,
+  getMyProfile,
+  updateMyProfile,
   createUser,
   getAllUsers,
   getUserById,
@@ -14,6 +16,12 @@ import { requireRoles } from '../middlewares/roleMiddleware.js';
 import { UserRole } from '../constants/index.js';
 
 const userRouter = express.Router();
+
+// Private (Employee) — Get the logged-in employee's profile
+userRouter.get('/me/profile', authenticateUser, requireRoles(UserRole.EMPLOYEE), getMyProfile);
+
+// Private (Employee) — Update the logged-in employee's profile name
+userRouter.patch('/me/profile', authenticateUser, requireRoles(UserRole.EMPLOYEE), updateMyProfile);
 
 // Private (Employee) — List active asset assignments for the logged-in employee
 userRouter.get('/me/assets', authenticateUser, requireRoles(UserRole.EMPLOYEE), getMyAssets);

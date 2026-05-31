@@ -8,6 +8,7 @@ import { AssignmentService } from '../services/assignmentService.js';
 import {
   createUserSchema,
   updateUserSchema,
+  updateMyProfileSchema,
   userIdParamSchema,
   assetIdParamForUserSchema,
 } from '../validators/userSchemas.js';
@@ -50,6 +51,26 @@ export const getMyHistory = catchAsync(async (req, res, next) => {
 
   const data = await assignmentService.getMyHistory(req.user.id, validatedQuery);
   res.status(STATUS_CODE.OK).json(successWithData(data, SUCCESS_MESSAGE.MY_HISTORY_FETCHED));
+});
+
+export const getMyProfile = catchAsync(async (req, res) => {
+  const data = await userService.getMyProfile(req.user.id);
+  res.status(STATUS_CODE.OK).json(successWithData(data, SUCCESS_MESSAGE.MY_PROFILE_FETCHED));
+});
+
+export const updateMyProfile = catchAsync(async (req, res, next) => {
+  const { error, value: validatedBody } = updateMyProfileSchema.validate(req.body, {
+    abortEarly: false,
+  });
+  if (error) {
+    logger.error({ errorType: ERROR_TYPE.VALIDATION_ERROR, message: error.message });
+    return next(
+      new APIError(error.message, STATUS_CODE.BAD_REQUEST, ERROR_TYPE.VALIDATION_ERROR)
+    );
+  }
+
+  const data = await userService.updateMyProfile(req.user.id, validatedBody);
+  res.status(STATUS_CODE.OK).json(successWithData(data, SUCCESS_MESSAGE.MY_PROFILE_UPDATED));
 });
 
 export const getAllUsers = catchAsync(async (req, res) => {

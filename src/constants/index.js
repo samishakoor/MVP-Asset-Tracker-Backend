@@ -99,6 +99,8 @@ export const SUCCESS_MESSAGE = {
   MY_ASSETS_FETCHED: 'Active assignments fetched successfully',
   MY_ASSET_DETAIL_FETCHED: 'Asset detail fetched successfully',
   MY_HISTORY_FETCHED: 'Assignment history fetched successfully',
+  MY_PROFILE_FETCHED: 'Profile fetched successfully',
+  MY_PROFILE_UPDATED: 'Profile updated successfully',
   TICKET_CREATED: 'Support ticket created successfully',
   TICKETS_FETCHED: 'Support tickets fetched successfully',
   TICKET_REVIEWED: 'Support ticket reviewed successfully',
