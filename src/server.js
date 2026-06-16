@@ -1,10 +1,24 @@
 import app from './app.js';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger.js';
+import routes from './routes/index.js';
+import { registerErrorHandlers } from './createServerlessApp.js';
 import { PORT } from './config/index.js';
 import { connectDatabase } from './config/database.js';
 import { ERROR_MESSAGE, SUCCESS_MESSAGE } from './constants/index.js';
 import logger from './utils/logger.js';
 
 const port = PORT || 3000;
+
+// Swagger API Documentation (for dev only)
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'Asset Tracker API Docs',
+}));
+
+// Mount all API routes for local development
+app.use('/api', routes);
+registerErrorHandlers(app);
 
 async function startServer() {
   try {
@@ -20,6 +34,7 @@ async function startServer() {
 
   const server = app.listen(port, () => {
     logger.info({ message: `🚀 Server is running on port ${port}` });
+    logger.info({ message: `📚 API Docs available at http://localhost:${port}/api-docs` });
   });
 
   process.on('SIGTERM', () => {

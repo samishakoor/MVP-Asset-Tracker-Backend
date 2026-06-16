@@ -95,7 +95,6 @@ After `npm run prisma:seed`:
 | Script | Command | Purpose |
 |--------|---------|---------|
 | Dev | `npm run dev` | Nodemon with auto-restart |
-| Start | `npm start` | Production server |
 | Generate client | `npm run prisma:generate` | Regenerate Prisma Client |
 | Migrate (dev) | `npm run prisma:migrate` | Create/apply migrations |
 | Migrate (prod) | `npm run prisma:migrate:deploy` | Deploy migrations |

@@ -5,8 +5,8 @@
   "type": "module",
   "main": "src/server.js",
   "scripts": {
-    "start": "node scripts/railway-start.mjs",
     "dev": "nodemon src/server.js",
+    "vercel-build": "node scripts/vercel-build.mjs",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",

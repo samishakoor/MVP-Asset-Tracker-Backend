@@ -13,21 +13,24 @@ function run(command, args) {
 
 if (!process.env.DATABASE_URL) {
   console.error(
-    'DATABASE_URL is not set. In Railway, link the Postgres service to this API service.'
+    'DATABASE_URL is not set. Add it to Vercel environment variables (Production + Preview).'
   );
   process.exit(1);
 }
 
+console.log('Generating Prisma Client...');
+run('npx', ['prisma', 'generate']);
+
 console.log('Syncing database schema...');
 run('npx', ['prisma', 'db', 'push']);
 
-const onRailway = Boolean(process.env.RAILWAY_ENVIRONMENT);
-const seedDisabled = process.env.SEED_ON_START === 'false';
+const seedDisabled = process.env.SEED_ON_BUILD === 'false';
 
-if (onRailway && !seedDisabled) {
+if (seedDisabled) {
+  console.log('Skipping database seed (SEED_ON_BUILD=false).');
+} else {
   console.log('Running database seed...');
   run('node', ['prisma/seed.js']);
 }
 
-console.log('Starting HTTP server...');
-run('node', ['src/server.js']);
+console.log('Vercel build complete.');

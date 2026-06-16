@@ -1,0 +1,35 @@
+# Vercel deployment
+node_modules
+.env
+.env.*
+!.env.example
+
+# Development files
+devServer.js
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Testing
+coverage
+.nyc_output
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Prisma
+prisma/migrations
+
+# Misc
+*.md
+!README.md
