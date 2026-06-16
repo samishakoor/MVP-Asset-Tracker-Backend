@@ -4,14 +4,18 @@ import { successWithData } from '../utils/response.js';
 import { AuditLogsService } from '../services/auditLogsService.js';
 import APIError from '../utils/APIError.js';
 import logger from '../utils/logger.js';
-import { auditLogsPaginationSchema } from '../validators/paginationSchemas.js';
+import {
+  auditLogsPaginationSchema,
+  queryValidateOptions,
+} from '../validators/paginationSchemas.js';
 
 const auditLogsService = new AuditLogsService();
 
 export const getAuditLogs = catchAsync(async (req, res, next) => {
-  const { error, value: validatedQuery } = auditLogsPaginationSchema.validate(req.query, {
-    abortEarly: false,
-  });
+  const { error, value: validatedQuery } = auditLogsPaginationSchema.validate(
+    req.query,
+    queryValidateOptions
+  );
 
   if (error) {
     const message = error.details.map((detail) => detail.message).join(', ');

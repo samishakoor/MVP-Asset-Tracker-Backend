@@ -4,6 +4,7 @@ import { STATUS_CODE, ERROR_TYPE, SUCCESS_MESSAGE } from '../constants/index.js'
 import { successWithData } from '../utils/response.js';
 import logger from '../utils/logger.js';
 import { SupportTicketService } from '../services/supportTicketService.js';
+import { queryValidateOptions } from '../validators/paginationSchemas.js';
 import {
   createTicketSchema,
   getAllTicketsQuerySchema,
@@ -33,9 +34,10 @@ export const createTicket = catchAsync(async (req, res, next) => {
 });
 
 export const getAllTickets = catchAsync(async (req, res, next) => {
-  const { error, value: validatedQuery } = getAllTicketsQuerySchema.validate(req.query, {
-    abortEarly: false,
-  });
+  const { error, value: validatedQuery } = getAllTicketsQuerySchema.validate(
+    req.query,
+    queryValidateOptions
+  );
   if (error) {
     logger.error({ errorType: ERROR_TYPE.VALIDATION_ERROR, message: error.message });
     return next(
