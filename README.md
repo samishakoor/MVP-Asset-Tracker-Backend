@@ -69,7 +69,7 @@ asset_tracker/
 │   ├── services/               # Business logic and transactions
 │   ├── utils/                  # JWT, passwords, APIError, event helpers
 │   └── validators/             # Joi schemas per resource
-├── vercel.json                 # Vercel builds, routes, and build command
+├── vercel.json                 # Vercel rewrites and build command
 ├── nodemon.json
 └── package.json
 ```
@@ -105,7 +105,7 @@ export default createServerlessApp((app) => {
 ```
 Local:   Request → src/server.js → src/routes/* → controller → service → Prisma
 
-Vercel:  Request → vercel.json route → api/*.js → src/routes/* → controller → service → Prisma
+Vercel:  Request → vercel.json rewrite → api/*.js → src/routes/* → controller → service → Prisma
 ```
 
 ## Getting Started (Local)
@@ -366,7 +366,7 @@ npm run prisma:studio
 1. Update `prisma/schema.prisma` and run `npm run prisma:migrate`
 2. Add or extend **model** → **service** → **controller** → **routes**
 3. Register router in `src/routes/index.js` (for local dev)
-4. If the route group is new, create a matching `api/<name>.js` serverless entry and add a route in `vercel.json`
+4. If the route group is new, create a matching `api/<name>.js` serverless entry and add rewrites in `vercel.json`
 5. Add Joi schema in `src/validators/` if the endpoint accepts input
 6. Mirror constants in `src/constants/index.js` when adding enums
 
@@ -383,14 +383,20 @@ export default createServerlessApp((app) => {
 });
 ```
 
-2. Add a route in `vercel.json`:
+2. Add rewrites in `vercel.json` — one for the collection path and one for subpaths:
 
 ```json
 {
-  "src": "/api/my-feature/(.*)",
-  "dest": "/api/my-feature.js"
+  "source": "/api/my-feature",
+  "destination": "/api/my-feature"
+},
+{
+  "source": "/api/my-feature/:path*",
+  "destination": "/api/my-feature"
 }
 ```
+
+Each `destination` maps to the matching file in `api/` (e.g. `api/my-feature.js`). Both exact paths (`/api/assets`) and subpaths (`/api/assets/types`) need their own rewrite entry.
 
 3. Redeploy to Vercel.
 
