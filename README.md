@@ -392,11 +392,11 @@ export default createServerlessApp((app) => {
 },
 {
   "source": "/api/my-feature/:path*",
-  "destination": "/api/my-feature"
+  "destination": "/api/my-feature/:path*"
 }
 ```
 
-Each `destination` maps to the matching file in `api/` (e.g. `api/my-feature.js`). Both exact paths (`/api/assets`) and subpaths (`/api/assets/types`) need their own rewrite entry.
+Use `:path*` in the **destination** as well — if omitted, Vercel injects the captured segments as a `path` query parameter, which Joi validation will reject.
 
 3. Redeploy to Vercel.
 

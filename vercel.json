@@ -8,7 +8,7 @@
     },
     {
       "source": "/api/auth/:path*",
-      "destination": "/api/auth"
+      "destination": "/api/auth/:path*"
     },
     {
       "source": "/api/users",
@@ -16,7 +16,7 @@
     },
     {
       "source": "/api/users/:path*",
-      "destination": "/api/users"
+      "destination": "/api/users/:path*"
     },
     {
       "source": "/api/assets",
@@ -24,7 +24,7 @@
     },
     {
       "source": "/api/assets/:path*",
-      "destination": "/api/assets"
+      "destination": "/api/assets/:path*"
     },
     {
       "source": "/api/assignments",
@@ -32,7 +32,7 @@
     },
     {
       "source": "/api/assignments/:path*",
-      "destination": "/api/assignments"
+      "destination": "/api/assignments/:path*"
     },
     {
       "source": "/api/support-tickets",
@@ -40,7 +40,7 @@
     },
     {
       "source": "/api/support-tickets/:path*",
-      "destination": "/api/support-tickets"
+      "destination": "/api/support-tickets/:path*"
     },
     {
       "source": "/api/admin",
@@ -48,7 +48,7 @@
     },
     {
       "source": "/api/admin/:path*",
-      "destination": "/api/admin"
+      "destination": "/api/admin/:path*"
     },
     {
       "source": "/api/notifications",
@@ -56,7 +56,7 @@
     },
     {
       "source": "/api/notifications/:path*",
-      "destination": "/api/notifications"
+      "destination": "/api/notifications/:path*"
     },
     {
       "source": "/api/ping",
