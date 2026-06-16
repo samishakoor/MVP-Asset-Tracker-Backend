@@ -1,44 +1,66 @@
 {
   "version": 2,
   "buildCommand": "npm run vercel-build",
-  "builds": [
+  "rewrites": [
     {
-      "src": "api/**/*.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/auth(.*)",
-      "dest": "/api/auth.js"
+      "source": "/api/auth",
+      "destination": "/api/auth"
     },
     {
-      "src": "/api/users(.*)",
-      "dest": "/api/users.js"
+      "source": "/api/auth/:path*",
+      "destination": "/api/auth"
     },
     {
-      "src": "/api/assets(.*)",
-      "dest": "/api/assets.js"
+      "source": "/api/users",
+      "destination": "/api/users"
     },
     {
-      "src": "/api/assignments(.*)",
-      "dest": "/api/assignments.js"
+      "source": "/api/users/:path*",
+      "destination": "/api/users"
     },
     {
-      "src": "/api/support-tickets(.*)",
-      "dest": "/api/support-tickets.js"
+      "source": "/api/assets",
+      "destination": "/api/assets"
     },
     {
-      "src": "/api/admin(.*)",
-      "dest": "/api/admin.js"
+      "source": "/api/assets/:path*",
+      "destination": "/api/assets"
     },
     {
-      "src": "/api/notifications(.*)",
-      "dest": "/api/notifications.js"
+      "source": "/api/assignments",
+      "destination": "/api/assignments"
     },
     {
-      "src": "/api/ping",
-      "dest": "/api/ping.js"
+      "source": "/api/assignments/:path*",
+      "destination": "/api/assignments"
+    },
+    {
+      "source": "/api/support-tickets",
+      "destination": "/api/support-tickets"
+    },
+    {
+      "source": "/api/support-tickets/:path*",
+      "destination": "/api/support-tickets"
+    },
+    {
+      "source": "/api/admin",
+      "destination": "/api/admin"
+    },
+    {
+      "source": "/api/admin/:path*",
+      "destination": "/api/admin"
+    },
+    {
+      "source": "/api/notifications",
+      "destination": "/api/notifications"
+    },
+    {
+      "source": "/api/notifications/:path*",
+      "destination": "/api/notifications"
+    },
+    {
+      "source": "/api/ping",
+      "destination": "/api/ping"
     }
   ],
   "env": {
