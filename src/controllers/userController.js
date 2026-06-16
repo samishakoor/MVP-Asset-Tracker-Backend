@@ -12,7 +12,10 @@ import {
   userIdParamSchema,
   assetIdParamForUserSchema,
 } from '../validators/userSchemas.js';
-import { myHistoryPaginationSchema } from '../validators/paginationSchemas.js';
+import {
+  myHistoryPaginationSchema,
+  queryValidateOptions,
+} from '../validators/paginationSchemas.js';
 
 const userService = new UserService();
 const assignmentService = new AssignmentService();
@@ -38,9 +41,10 @@ export const getMyAssetDetail = catchAsync(async (req, res, next) => {
 });
 
 export const getMyHistory = catchAsync(async (req, res, next) => {
-  const { error, value: validatedQuery } = myHistoryPaginationSchema.validate(req.query, {
-    abortEarly: false,
-  });
+  const { error, value: validatedQuery } = myHistoryPaginationSchema.validate(
+    req.query,
+    queryValidateOptions
+  );
 
   if (error) {
     logger.error({ errorType: ERROR_TYPE.VALIDATION_ERROR, message: error.message });

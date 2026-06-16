@@ -2,6 +2,12 @@ import Joi from 'joi';
 
 const SORT_ORDER_VALUES = ['asc', 'desc'];
 
+/** Strips Vercel-injected `path` and other unknown query keys on subpath rewrites. */
+export const queryValidateOptions = {
+  abortEarly: false,
+  stripUnknown: true,
+};
+
 /**
  * Builds a Joi query schema for paginated list endpoints.
  *

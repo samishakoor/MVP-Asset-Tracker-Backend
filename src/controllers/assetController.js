@@ -10,7 +10,10 @@ import {
   assetIdParamSchema,
   updateAssetSchema,
 } from '../validators/assetSchemas.js';
-import { assetsPaginationSchema } from '../validators/paginationSchemas.js';
+import {
+  assetsPaginationSchema,
+  queryValidateOptions,
+} from '../validators/paginationSchemas.js';
 
 const assetService = new AssetService();
 
@@ -40,9 +43,10 @@ export const getAllAssets = catchAsync(async (req, res, next) => {
     querySchema = getAllAssetsFilterSchema.concat(assetsPaginationSchema);
   }
 
-  const { error, value: validatedQuery } = querySchema.validate(req.query, {
-    abortEarly: false,
-  });
+  const { error, value: validatedQuery } = querySchema.validate(
+    req.query,
+    queryValidateOptions
+  );
   if (error) {
     logger.error({ errorType: ERROR_TYPE.VALIDATION_ERROR, message: error.message });
     return next(

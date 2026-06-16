@@ -5,14 +5,18 @@ import { successWithData, success } from '../utils/response.js';
 import logger from '../utils/logger.js';
 import { NotificationService } from '../services/notificationService.js';
 import { notificationIdSchema } from '../validators/notificationSchemas.js';
-import { notificationsPaginationSchema } from '../validators/paginationSchemas.js';
+import {
+  notificationsPaginationSchema,
+  queryValidateOptions,
+} from '../validators/paginationSchemas.js';
 
 const notificationService = new NotificationService();
 
 export const getNotifications = catchAsync(async (req, res, next) => {
-  const { error, value: validatedQuery } = notificationsPaginationSchema.validate(req.query, {
-    abortEarly: false,
-  });
+  const { error, value: validatedQuery } = notificationsPaginationSchema.validate(
+    req.query,
+    queryValidateOptions
+  );
   if (error) {
     logger.error({ errorType: ERROR_TYPE.VALIDATION_ERROR, message: error.message });
     return next(
