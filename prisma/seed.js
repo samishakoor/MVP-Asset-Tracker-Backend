@@ -7,7 +7,7 @@ const SALT_ROUNDS = 12;
 async function main() {
   console.log('Start seeding...');
 
-  const adminEmail = 'sami.shakoor@codefulcrum.com';
+  const adminEmail = 'sami.shakoor788@gmail.com';
   const existingAdmin = await prisma.user.findUnique({
     where: { email: adminEmail },
   });

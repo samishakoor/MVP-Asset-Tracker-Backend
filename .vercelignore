@@ -6,6 +6,7 @@ node_modules
 
 # Development files
 devServer.js
+src/server.js
 
 # Logs
 logs
