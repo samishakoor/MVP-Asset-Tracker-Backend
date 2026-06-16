@@ -383,11 +383,11 @@ export default createServerlessApp((app) => {
 });
 ```
 
-2. Add a route in `vercel.json`:
+2. Add a route in `vercel.json` (use `(.*)` without a required slash so both `/api/my-feature` and `/api/my-feature/:id` match):
 
 ```json
 {
-  "src": "/api/my-feature/(.*)",
+  "src": "/api/my-feature(.*)",
   "dest": "/api/my-feature.js"
 }
 ```
