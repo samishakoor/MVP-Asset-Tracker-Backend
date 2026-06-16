@@ -1,9 +1,0 @@
-# Railway deploy config (https://docs.railway.com/guides/config-as-code)
-[build]
-builder = "RAILPACK"
-
-[deploy]
-# Start runs prisma db push (schema + indexes from schema.prisma), then the API
-startCommand = "npm run start"
-healthcheckPath = "/api/ping"
-healthcheckTimeout = 300
