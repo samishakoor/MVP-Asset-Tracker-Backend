@@ -56,7 +56,7 @@
     },
     {
       "source": "/api/notifications/:path*",
-      "destination": "/api/notifications*"
+      "destination": "/api/notifications"
     },
     {
       "source": "/api/ping",
